@@ -6,7 +6,7 @@ comments: true
 categories:
 ---
 
-In preparation of moving more of my personal laptop's setup into git
+In preparation for moving more of my personal laptop's setup into git
 and Chef, I spent a few minutes this morning taking stock of what I
 had floating around my home folder on my personal laptop.
 
