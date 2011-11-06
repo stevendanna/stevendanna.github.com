@@ -17,7 +17,8 @@ it up on Github and added a bit more user friendliness:
 *[gsd: A small utility to get stuff done](https://github.com/stevendanna/gsd)*
 
 `gsd` helps you get work done by replacing your host file with a
-custom host file kept in `~/.gsd/`.
+custom host file kept in `~/.gsd/`.  The custom host file prevents you
+from visiting sites that distract you from the work you need to get done.
 
 To start using the filter, simply clone the git repo and install the
 script
