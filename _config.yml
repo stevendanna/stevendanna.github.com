@@ -4,7 +4,7 @@
 
 url: http://stevendanna.github.com
 title: Steven Danna's Blog
-subtitle: 
+subtitle:
 author: Steven Danna
 simple_search: http://google.com/search
 
@@ -87,11 +87,11 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-disqus_short_name:
-disqus_show_comment_count: false
+disqus_short_name: allons-y
+disqus_show_comment_count: true
 
 # Google Analytics
 google_analytics_tracking_id:
-   
+
 # Facebook Like
 facebook_like: false
