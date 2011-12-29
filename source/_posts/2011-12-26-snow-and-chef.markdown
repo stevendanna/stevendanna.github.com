@@ -34,7 +34,7 @@ The first item every node in the cluster will need is R.  The R
 cookbook on the Opscode Community site is a bit out of date.  I've
 created a newer version that can be found here:
 
-[http://github.com/stevensdanna/r-cookbook](http://github.com/stevensdanna/r-cookbook)
+[http://github.com/stevendanna/cookbook-r](http://github.com/stevendanna/cookbook-r)
 
 This cookbook does the following:
 
@@ -52,7 +52,7 @@ Ubuntu or Debian.
 My R parallel computing environment relies on the 'snow' and 'Rmpi'
 packages to manage communication with computation nodes.  Further, I
 often need additional packages from CRAN when working with my cluster.
-The R package provide in my R cookbook allows for easy, automated
+The R package provider in my R cookbook allows for easy, automated
 installation of R packages.  It was written using Chef's Light-weight
 Resource and Provider DSL.  The current version provides the minimal
 necessary functionality:
