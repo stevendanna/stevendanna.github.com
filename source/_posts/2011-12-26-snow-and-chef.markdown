@@ -3,7 +3,7 @@ layout: post
 title: "Snow and Chef"
 date: 2011-12-26 09:32
 comments: true
-categories: R, chef, mpi
+categories: R chef mpi
 ---
 One of my major interests is programming in R.  I took a few days off
 for Christmas break, and in between talking with family, watching old
