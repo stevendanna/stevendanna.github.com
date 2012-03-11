@@ -20,7 +20,8 @@ My own `~/bin` contains similar higher-order functions and other
 simple tools.  Like most unix tools, they do a single task and are
 composable with other tools on the command line.  However, I am often
 surprised by the number of heavy command-line users I see who don't
-regularly combine repetitive tasks in to shell functions or aliases.
+regularly encapsulate repetitive tasks or constructions into shell
+functions or aliases.
 
 In my experience, the majority of such tools
 
@@ -28,9 +29,9 @@ In my experience, the majority of such tools
 * require almost no maintenance, and
 * prove repeatably useful after their initial creation.
 
-This post shares two tools in my `~/bin` that I used this weekend.
-Both were create a while ago for entirely different purposes, but I
-was still able to easily use them together without modification.
+This post shares two tools in my `~/bin` that I used this weekend.  I
+created both while ago for entirely different purposes, but was still
+able to easily use them together without modification.
 
 ## do.times N COMMAND
 
@@ -46,9 +47,9 @@ hello
 ```
 
 The [tool itself](https://gist.github.com/2014470) is little more than
-a simple wrapper to a shell `for` loop, but the typing it saves and
-the semantic value it provides when constructing a command line has
-proven valuable on numerous occasions.
+a wrapper to a shell `for` loop, but the typing it saves and the
+semantic value it provides when constructing a command line has proven
+valuable on numerous occasions.
 
 ## summarize [OPTIONS] [FILE]
 
@@ -96,9 +97,9 @@ to quickly answer a basic question.
 
 [summarize](https://gist.github.com/2014462) uses Rscript, an
 executable shipped with R that allows one to create scripts using R.
-Recently, I added a dependency on the CRAN package optparse to make
-handling options a bit more straightforward.  With exception of the
-option parsing, the R code itself is likely easily understood by
+Recently, I added a dependency on the CRAN package `optparse` to make
+handling options a bit more straightforward.  With the exception of
+the option parsing, the R code itself is likely easily understood by
 anyone who has used R.
 
 # Smoke Testing Speed Improvements
