@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: R | Steven Danna's Blog]]></title>
+  <link href="http://stevendanna.github.com/blog/categories/r/atom.xml" rel="self"/>
+  <link href="http://stevendanna.github.com/"/>
+  <updated>2012-08-28T00:46:49-07:00</updated>
+  <id>http://stevendanna.github.com/</id>
+  <author>
+    <name><![CDATA[Steven Danna]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Simple Tools: do.times and summarize]]></title>
+    <link href="http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/"/>
+    <updated>2012-03-10T00:00:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize</id>
+    <content type="html"><![CDATA[<p>Recently, a coworker has been sharing some higher-order shell
+functions he has been writing, inspired by the first of these
+articles:</p>
+
+<ul>
+<li><a href="http://yannesposito.com/Scratch/en/blog/Higher-order-function-in-zsh">Higher Order Functions in Zsh</a></li>
+<li><a href="http://conway.rutgers.edu/~ccshan/wiki/blog/posts/Higher-order_shell/">Higher-order shell</a></li>
+</ul>
+
+
+<p>Both discuss small scripts and shell functions that allow you to more
+easily compose simple unix tools to complete complex task.</p>
+
+<p>My own <code>~/bin</code> contains similar higher-order functions and other
+simple tools.  Like most unix tools, they do a single task and are
+composable with other tools on the command line.  However, I am often
+surprised by the number of heavy command-line users I see who don't
+regularly encapsulate repetitive tasks or constructions into shell
+functions or aliases.</p>
+
+<p>In my experience, the majority of such tools</p>
+
+<ul>
+<li>take less than 5 minutes to write,</li>
+<li>require almost no maintenance, and</li>
+<li>prove repeatably useful after their initial creation.</li>
+</ul>
+
+
+<p>This post shares two tools in my <code>~/bin</code> that I used this weekend.  I
+created both while ago for entirely different purposes, but was still
+able to easily use them together without modification.</p>
+
+<h2>do.times N COMMAND</h2>
+
+<p><code>do.times</code> executes COMMAND, N times.  For example,</p>
+
+<p><code>
+$ do.times 5 echo hello
+hello
+hello
+hello
+hello
+hello
+</code></p>
+
+<p>The <a href="https://gist.github.com/2014470">tool itself</a> is little more than
+a wrapper to a shell <code>for</code> loop, but the typing it saves and the
+semantic value it provides when constructing a command line has proven
+valuable on numerous occasions.</p>
+
+<h2>summarize [OPTIONS] [FILE]</h2>
+
+<p><code>summarize</code> reads columns of data from either a file given as an
+argument or its standard input and provides basic summary statistics.
+I originally wrote this to do quick spot checks of data files I was
+working on before sending them off to collaborators.</p>
+
+<p>Here is an example of its output:
+```
+$ summarize --sep="," --header data_file</p>
+
+<pre><code>wombats            frogs
+</code></pre>
+
+<p> Min.   :0.01911   Min.   :0.02979
+ 1st Qu.:0.22101   1st Qu.:0.32504
+ Median :0.51178   Median :0.50530
+ Mean   :0.51318   Mean   :0.51650
+ 3rd Qu.:0.79354   3rd Qu.:0.71484
+ Max.   :0.99561   Max.   :0.99827
+ It requires
+Covariance Matrix:</p>
+
+<pre><code>        wombats       frogs
+</code></pre>
+
+<p>wombats 0.084647845 0.006553818
+frogs   0.006553818 0.074872790</p>
+
+<p>Column Sums:
+ wombats    frogs
+51.31770 51.65021</p>
+
+<p>Number of Rows:
+[1] 100</p>
+
+<p>First 6 Rows:</p>
+
+<pre><code> wombats     frogs
+</code></pre>
+
+<p>1 0.15767016 0.3545217
+2 0.42022851 0.5092576
+3 0.22144630 0.6796292
+4 0.84320607 0.6749124
+5 0.07491303 0.3430995
+6 0.65910419 0.3053271
+```</p>
+
+<p>While it doesn't seem like much, these basic statistics are often all
+one needs to ensure they are sending the correct data to a teammate or
+to quickly answer a basic question.</p>
+
+<p><a href="https://gist.github.com/2014462">summarize</a> uses Rscript, an
+executable shipped with R that allows one to create scripts using R.
+Recently, I added a dependency on the CRAN package <code>optparse</code> to make
+handling options a bit more straightforward.  With the exception of
+the option parsing, the R code itself is likely easily understood by
+anyone who has used R.</p>
+
+<h1>Smoke Testing Speed Improvements</h1>
+
+<p>This weekend I have been working on a small set of improvements to
+make some not-so-simple tools I use on a regular basis a bit
+faster. Combining <code>do.times</code> and <code>summarize</code> allowed me to quickly
+generate a smoke test for whether the speed improvements I was
+implementing were working.  To protect the innocent, I'll use <code>git
+--version</code> as an example of the command I wanted to test:</p>
+
+<p>```
+$ do.times 100 time git --version 2>&amp;1 | awk '/real/ {print substr($2,3,5)}' | summarize</p>
+
+<pre><code>   V1
+</code></pre>
+
+<p> Min.   :0.00100
+ 1st Qu.:0.00100
+ Median :0.00100
+ Mean   :0.00116
+ 3rd Qu.:0.00100
+ Max.   :0.00400</p>
+
+<p>Covariance Matrix:</p>
+
+<pre><code>         V1
+</code></pre>
+
+<p>V1 2.771717e-07</p>
+
+<p>Column Sums:
+   V1
+0.116</p>
+
+<p>Number of Rows:
+[1] 100</p>
+
+<p>First 6 Rows:</p>
+
+<pre><code> V1
+</code></pre>
+
+<p>1 0.004
+2 0.004
+3 0.001
+4 0.002
+5 0.001
+6 0.001
+```</p>
+
+<p>While this isn't scientific testing by any means, it was enough to
+keep me moving in the right direction, and simple enough that the cost
+of creating and running the test was practically zero.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[R ohai plugin]]></title>
+    <link href="http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin/"/>
+    <updated>2012-01-01T15:44:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/opscode/ohai">Ohai</a> is a library used by Chef to collect information about nodes
+within your infrastructure.  Information is collected by a set of Ohai
+plugins, most of which parse the output of system commands.</p>
+
+<p>During lunch on Friday, I create a simple Ohai plugin to collect some basic
+information about R. You can find the plugin here:</p>
+
+<p>  <a href="https://github.com/stevendanna/ohai-plugins/blob/master/r.rb">https://github.com/stevendanna/ohai-plugins/blob/master/r.rb</a></p>
+
+<p>Currently, this plugin collects:</p>
+
+<ul>
+<li>The version of R,</li>
+<li>The installed packages, and</li>
+<li>The output of <code>capabilities()</code></li>
+</ul>
+
+
+<p>To use this plugin right away, the easiest course of action is to use
+the <a href="http://community.opscode.com/cookbooks/ohai">Opscode Ohai cookbook</a>.  From your chef repository:</p>
+
+<p>``` bash
+knife cookbook site install ohai
+wget https://raw.github.com/stevendanna/ohai-plugins/master/r.rb
+mv r.rb cookbooks/ohai/files/default/plugins/
+knife cookbook upload ohai</p>
+
+<h1>Add the recipe to the run list of the relevant nodes</h1>
+
+<h1>or roles</h1>
+
+<p>knife node run_list add NODENAME ohai</p>
+
+<h1>The ohai plugin will run on the next chef-client run</h1>
+
+<p>knife ssh 'name:NODENAME'
+```</p>
+
+<p>In order to avoid unnecessary runs of Ohai within a chef-client run
+you can add the following line to the <code>client.rb</code> configuration file on your nodes:</p>
+
+<p><code>ruby
+Ohai::Config[:plugin_path] &lt;&lt; '/etc/chef/ohai_plugins'
+</code></p>
+
+<p>If you are using Opscode's chef-client cookbook, this will already be
+taken care of for you.</p>
+
+<p>The following is an example of the information it collects:</p>
+
+<p>```</p>
+
+<blockquote><p>knife node show snow-master -a languages.r -Fj
+{
+  "languages.r": {</p>
+
+<pre><code>"capabilities": {
+  "tiff": true,
+  "cledit": false,
+  "tcltk": true,
+  "X11": false,
+  "sockets": true,
+  "fifo": true,
+  "iconv": true,
+  "cairo": true,
+  "png": true,
+  "http/ftp": true,
+  "libxml": true,
+  "jpeg": true,
+  "aqua": false,
+  "NLS": true,
+  "profmem": true
+},
+"packages": [
+  {
+    "name": "Rmpi",
+    "version": "0.5-9",
+    "built": "2.14.1"
+  },
+  {
+    "name": "snow",
+    "version": "0.3-8",
+    "built": "2.14.1"
+  },
+  {
+    "name": "KernSmooth",
+    "version": "2.23-7",
+    "built": "2.14.0"
+  },
+</code></pre>
+
+<p>[ ... SNIP MANY MORE PACKAGE ...]</p>
+
+<pre><code>  {
+    "name": "boot",
+    "version": "1.3-3",
+    "built": "2.14.0"
+  },
+  {
+    "name": "utils",
+    "version": "2.14.1",
+    "built": "2.14.1"
+  }
+],
+"version": "2.14.1"
+</code></pre>
+
+<p>  }
+}</p></blockquote>
+
+<p>```</p>
+
+<p>Also, Happy New Year!</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Snow and Chef]]></title>
+    <link href="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/"/>
+    <updated>2011-12-26T09:32:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2011/12/26/snow-and-chef</id>
+    <content type="html"><![CDATA[<p>One of my major interests is programming in R.  I took a few days off
+for Christmas break, and in between talking with family, watching old
+movies, opening presents, and spreading Christmas cheer, I decided it
+would be fun to use Chef to create a parallel computing environment
+suitable for use with R.  As part of this project, I wrote:</p>
+
+<ul>
+<li>A Chef cookbook to install and configure R.</li>
+<li>An R package provider to easily install packages from CRAN.</li>
+<li>A Chef cookbook to install and configure MPI.</li>
+</ul>
+
+
+<p>This blog post outlines some of the highlights of this fun little
+project. It isn't a step-by-step tutorial for creating such
+an environment.  I assume that already have:</p>
+
+<ul>
+<li>General familiarity with R and Chef.  I talk about cookbooks,
+recipes, and roles and assume you know what to do with them.</li>
+<li>A means of provisioning computation nodes, each already configured
+with hostnames that are resolvable to network addresses by other
+computation nodes.</li>
+</ul>
+
+
+<p>I used vagrant to provision a few VMs for testing these recipes and a
+small set of vagrant-specific cookbooks to ensure that each node had a
+resolvable hostname.</p>
+
+<h1>R Cookbook</h1>
+
+<p>The first item every node in the cluster will need is R.  The R
+cookbook on the Opscode Community site is a bit out of date.  I've
+created a newer version that can be found here:</p>
+
+<p><a href="http://github.com/stevendanna/cookbook-r">http://github.com/stevendanna/cookbook-r</a></p>
+
+<p>This cookbook does the following:</p>
+
+<ul>
+<li>Installs R from either the CRAN APT repository or from source depending
+on the platform.</li>
+<li>Defines a system-wide default CRAN mirror using an Rprofile.site
+template.</li>
+<li>Contains an R package provider that can install R packages available
+on CRAN.</li>
+</ul>
+
+
+<p>Currently this cookbook is linux-centric and best suited for use on
+Ubuntu or Debian.</p>
+
+<h2>R Package Provider</h2>
+
+<p>My R parallel computing environment relies on the 'snow' and 'Rmpi'
+packages to manage communication with computation nodes.  Further, I
+often need additional packages from CRAN when working with my cluster.
+The R package provider in my R cookbook allows for easy, automated
+installation of R packages.  It was written using Chef's Light-weight
+Resource and Provider DSL.  The current version provides the minimal
+necessary functionality:</p>
+
+<p>``` ruby "R package provider.  Corresponding resource description not shown."
+action :install do
+  execute "Install R Package" do</p>
+
+<pre><code>command r_package_install(new_resource.package)
+not_if r_package_is_installed(new_resource.package)
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>action :upgrade do
+  execute "Upgrade R Package" do</p>
+
+<pre><code>command r_package_install(new_resource.package)
+</code></pre>
+
+<p>  end
+end</p>
+
+<p>action :remove do
+  r_package_remove = "remove.packages('#{new_resource.package}')"
+  execute "Remove R Package" do</p>
+
+<pre><code>command "echo \"#{r_package_remove}\" | R --no-save --no-restore -q"
+only_if r_package_is_installed(new_resource.package)
+</code></pre>
+
+<p>  end
+end</p>
+
+<h1>The following helper functions construct strings that can be run as</h1>
+
+<h1>Bash commands. For example, as the input of not_if or only_if</h1>
+
+<h1>statements</h1>
+
+<p>def r_package_is_installed(package_name)
+  r_code = "if (any(installed.packages()[,1] == '#{package_name}')) { quit('no', 0, FALSE) }; quit('no', 1, FALSE)"
+  "echo \"#{r_code}\" | R --no-save --no-restore -q"
+end</p>
+
+<p>def r_package_install(package_name)
+  r_code = "install.packages('#{package_name}')"
+  "echo \"#{r_code}\" | R --no-save --no-restore -q"
+end
+```</p>
+
+<p>It supports three actions: <code>:install</code>, <code>:upgrade</code>, and
+<code>:remove</code>; however, it is not very feature-rich.  A few features I
+would like to add include:</p>
+
+<ul>
+<li>The ability to specify the CRAN mirror or repository.</li>
+<li>The ability to install local packages</li>
+<li>The ability to install packages on a per-user basis.</li>
+</ul>
+
+
+<p>Despite these shortcomings, the current provider works well enough for
+my purposes and is a good example of Chef's high-level of
+'Whip-It-Up-itude.'  Within a few minutes, I was able to go from some
+quick-and-dirty R code to a Chef provider that I can iteratively
+improve as my needs become more complex.  While I did not include it
+in the repository linked above, I was able to create a small <code>R::snow</code>
+recipe that does little more than use this provider:</p>
+
+<p>``` ruby
+R_package "snow"</p>
+
+<p>case node['R']['snow']['cluster_type']
+when 'mpi'
+  include_recipe 'mpi'
+  R_package 'Rmpi'
+end
+```</p>
+
+<h1>MPI Cookbook</h1>
+
+<p>The R package 'snow' can use various backends to communicate with
+computation nodes.  The default method for most commands is "Message
+Passing Interface" (MPI).  MPI is also generally useful outside of R
+as you can easily use MPI utilities such as mpirun to execute a
+command on multiple computation nodes and use MPI's C libraries to
+write programs designed for parallel computation.</p>
+
+<p>MPI has multiple implementation.  I've written an MPI cookbook that
+can install <a href="http://www.open-mpi.org/">openmpi</a> on Ubuntu.  It can be found here:</p>
+
+<p><a href="https://github.com/stevendanna/cookbook-mpi">https://github.com/stevendanna/cookbook-mpi</a></p>
+
+<p>This cookbook does the following:</p>
+
+<ul>
+<li>Installs openmpi on Ubuntu</li>
+<li>Constructs a list of computation nodes within your environment using
+search and then renders a default hostfile that is used by MPI
+commands such as mpirun.</li>
+<li>Sets basic configuration options that I have found useful.</li>
+</ul>
+
+
+<p>While MPI does not natively contain the concepts of master and slaves
+(every MPI node can talk to any other MPI node), I found it useful to
+include the concept of a node's "MPI role."  I use this role to
+populate the default hostfile, since there are often cases where you
+might want MPI installed on a machine within your environment but
+would not want that machine being used for computation.</p>
+
+<h1>Putting it all Together</h1>
+
+<p>I put this all together using two roles: snow_master and snow_slave</p>
+
+<p>``` ruby roles/snow_master.json
+{</p>
+
+<pre><code>"name" : "snow_master",
+"json_class" : "Chef::Role",
+"chef_type" : "role",
+"run_list" : [ "recipe[R]", "recipe[R::snow]", "recipe[mpi]", "recipe[ssh_known_hosts]" ],
+"default_attributes" : {
+    "mpi" : {
+        "role": "master"
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>``` ruby roles/snow_slave.json
+{</p>
+
+<pre><code>"name" : "snow_slave",
+"json_class" : "Chef::Role",
+"chef_type" : "role",
+"run_list" : [ "recipe[R]", "recipe[R::snow]", "recipe[mpi]", "recipe[ssh_known_hosts]" ]
+</code></pre>
+
+<p>}
+```</p>
+
+<p>By applying the snow_slave role to all of the nodes I wanted within
+my computation cluster and the snow_master role to the machine I will
+use to launch jobs in my cluster, I can quickly bring up a new cluster
+of machines suitable for doing parallel computation in R using snow.</p>
+
+<p>The ssh_known_hosts recipe is directly from the Opscode community
+site and helps make ssh connections between the nodes a bit smoother.</p>
+
+<h1>Twelve Days of Chistmas</h1>
+
+<p>As an example of how easy it is to do simple parallel computation
+using snow, consider the following Chistmas-themed R function.</p>
+
+<p>``` r
+twelve_days_of_christmas &lt;- function (n) {
+  if (!any(1:12 == n)) stop("Not a day of Chirstmas!")
+  LYRICS &lt;- c("a Partridge in a Pear Tree.",</p>
+
+<pre><code>          "Two Turtle Doves",
+          "Three French Hens",
+          "Four Colly Birds",
+          "Five Golden Rings",
+          "Six Geese-a-Laying",
+          "Seven Swans-a-Swimming",
+          "Eight Maids-a-Milking",
+          "Nine Ladies Dancing",
+          "Ten Lords-a-Leaping",
+          "Eleven Pipers Piping",
+          "Twleve Drummers Drumming")
+</code></pre>
+
+<p>  append = c("st", "nd", "rd", rep("th",9))
+  if (n > 1) LYRICS[1] = paste("and", LYRICS[1])
+  paste("On the",</p>
+
+<pre><code>    paste(n, append[n], sep=""),
+    "day of Christmas, my true love gave to me",
+    paste(LYRICS[n:1], collapse=", "))
+</code></pre>
+
+<p>}
+```</p>
+
+<p>Assuming chef-client has been run on all of our nodes, we can simply
+log into our 'snow master', boot up R, and run the following code:</p>
+
+<p>``` r</p>
+
+<blockquote><p>library('snow')
+source('twelve_days.r')
+cl &lt;- makeCluster(2)
+clusterApply(cl, 1:12, twelve_days_of_christmas)
+[[1]]
+[1] "On the 1st day of Christmas, my true love gave to me a Partridge in a Pear Tree."</p></blockquote>
+
+<p>[[2]]
+[1] "On the 2nd day of Christmas, my true love gave to me Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[3]]
+[1] "On the 3rd day of Christmas, my true love gave to me Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[4]]
+[1] "On the 4th day of Christmas, my true love gave to me Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[5]]
+[1] "On the 5th day of Christmas, my true love gave to me Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[6]]
+[1] "On the 6th day of Christmas, my true love gave to me Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[7]]
+[1] "On the 7th day of Christmas, my true love gave to me Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[8]]
+[1] "On the 8th day of Christmas, my true love gave to me Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[9]]
+[1] "On the 9th day of Christmas, my true love gave to me Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[10]]
+[1] "On the 10th day of Christmas, my true love gave to me Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[11]]
+[1] "On the 11th day of Christmas, my true love gave to me Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+
+<p>[[12]]
+[1] "On the 12th day of Christmas, my true love gave to me Twleve Drummers Drumming, Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."
+```</p>
+
+<h1>Conclusion</h1>
+
+<p>Overall this was a fun project to do over break.  It took a handful of
+hours to complete, most of which was dedicated to a few problems not
+discussed in this post:</p>
+
+<ul>
+<li>Making hostnames resolvable and other network oddities within my
+Vagrant test environment.</li>
+<li>Deciding which implementation of MPI to use.</li>
+</ul>
+
+
+<p>I personally would like to see further work done around using Chef to
+manage large R environments. Some work I hope to do in the not to
+distant future includes:</p>
+
+<ul>
+<li>Expand the R cookbook to better support OS X.</li>
+<li>Add support to detect the latest version when doing a source install.</li>
+<li>Expand the R package provider to include more of the features available
+when installing package from within R.</li>
+<li>Write an R Ohai plugin that would collect information about:
+
+<ul>
+<li>R version and capabilities</li>
+<li>R packages installed</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Happy Holidays!</p>
+]]></content>
+  </entry>
+  
+</feed>

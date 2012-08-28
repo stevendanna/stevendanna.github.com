@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: shef | Steven Danna's Blog]]></title>
+  <link href="http://stevendanna.github.com/blog/categories/shef/atom.xml" rel="self"/>
+  <link href="http://stevendanna.github.com/"/>
+  <updated>2012-08-28T00:46:49-07:00</updated>
+  <id>http://stevendanna.github.com/</id>
+  <author>
+    <name><![CDATA[Steven Danna]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef]]></title>
+    <link href="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/"/>
+    <updated>2012-01-28T15:13:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1</id>
+    <content type="html"><![CDATA[<p>Recently, I've used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
+the interactive Chef console, to get to the bottom of some rather
+tricky problems.  In the process, I developed a number of tricks and
+tools for productively debugging problems using Shef.  This is the first
+in a series of articles I'd like to write on the most useful of these
+tips.</p>
+
+<p>In this article I will discuss how I use Shef and a handful of
+additional functions to debug Chef-client runs by stepping through a
+node's run list, breaking before or after specific resources in order
+to inspect the state of the system.  Note that this is not intended
+to be an introduction to Shef.  For that, you should head over to the
+<a href="http://wiki.opscode.com/display/chef/Getting+Started+with+Shef">Chef Wiki</a>.</p>
+
+<h1>Setup</h1>
+
+<p>Some of the functions I mention in this article are in the <code>shef/</code>
+directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you'd like to use them,
+you can download this repository from Github:</p>
+
+<p><code>bash
+mkdir ~/src
+cd ~/src
+git clone git://github.com/stevendanna/knife-hacks.git
+</code>
+To make it easy to include files from this repository inside Shef, you
+can use the following in the relevant configuration file:</p>
+
+<p><code>ruby
+unless defined?(Shef).nil?
+  $: &lt;&lt; File.expand_path("~/src/knife-hacks/")
+end
+</code></p>
+
+<p>All of the examples I will be doing will be on my local workstation.
+For ease, I have placed this in my <code>knife.rb</code> file, which I will
+pass to Shef using the <code>-c</code> command line option.  However, a similar
+approach will work within a <code>client.rb</code> for a node or a custom <code>shef.rb</code>
+file.</p>
+
+<h1>Introduction</h1>
+
+<p>Shef is an interactive console for Chef.  Essentially, it is IRB with
+support for recipe and attribute syntax and a number of Chef-relevant
+functions.</p>
+
+<p>Here's a typical Shef session that you might find in an introduction
+to Shef.  We add some resources, including a <em>breakpoint</em> resource and
+start a chef-run.</p>
+
+<p><code>
+chef &gt; recipe
+chef:recipe &gt; echo off
+chef:recipe &gt; log "a"
+chef:recipe &gt; breakpoint "STOP"
+chef:recipe &gt; log "b"
+chef:recipe &gt; run_chef
+DEBUG: Processing log[a] on sdanna
+INFO:  Processing log[a] action write ((irb#1) line 3)
+INFO:  a
+DEBUG: Processing [/home/sdanna/.rvm/gems/ruby-1.9.3-p0/gems/chef-0.10.8/lib/chef/mixin/recipe_definition_dsl_core.rb:61:in `new'] on sdanna
+INFO:  Processing [/home/sdanna/.rvm/gems/ruby-1.9.3-p0/gems/chef-0.10.8/lib/chef/mixin/recipe_definition_dsl_core.rb:61:in `new'] action break ((irb#1) line
+</code></p>
+
+<p>The breakpoint stops the chef-client run, allowing you to
+investigate the state of the system and then resume the run with <code>chef_run.resume</code></p>
+
+<p><code>
+chef:recipe &gt; chef_run.resume
+INFO:  Processing log[b] action write ((irb#1) line 6)
+INFO:  b
+</code></p>
+
+<p>With these basic features, Shef can be great for running quick tests
+of recipe code.  However, it is not immediately clear how you get from
+here to being able to step through an actual chef-client run.  To
+effectively step through a chef-client run, we need to be able to:</p>
+
+<ul>
+<li>Load resources from the recipes in the node's run_list, and</li>
+<li>Insert breakpoints between the loaded resources.</li>
+</ul>
+
+
+<p>The remainder of this article covers how to accomplish these two
+tasks.</p>
+
+<h2>Loading Resources from the RunList</h2>
+
+<p>Invoking Shef with the <code>-z</code> argument enables client-mode, forcing it to
+download the relevant recipes from the node's run_list just as
+chef-client would, but it does not processes these recipes and add
+their resources to the resource collection.</p>
+
+<p>Because Shef's recipe context allows you to use the recipe DSL, we can
+add the resources from an individual recipe using the <code>include_recipe</code>
+function.  We can only use <code>include_recipe</code> on recipes that Shef
+downloaded when we started it up.</p>
+
+<p><code>
+chef:recipe &gt; resources
+[]
+chef:recipe &gt; include_recipe "ssh_known_hosts"
+chef:recipe &gt; resources
+["template[/etc/ssh/ssh_known_hosts]"]
+</code></p>
+
+<p>In order to load all of the recipes we need to iterate over a list of
+all the recipes in the run_list and call <code>include_recipe</code> on each of
+them.  Since the run_list can contain roles, we also need to ensure we
+get the expanded run_list.  There are a number of ways to get the
+expanded run_list.  Here is one:</p>
+
+<p><code>ruby
+node.run_list.expand(node.chef_environment).recipes.each do |r|
+  include_recipe r
+end
+</code></p>
+
+<p>This simple bit of Ruby is much like the <em>resource compilation</em> phase of
+a chef-client run.  Just as within a chef-client run, you may
+encounter an error as you try to include the recipes. In a future
+article, I may discuss better ways to step through this compilation
+phase.</p>
+
+<p>Since I'd rather not type the above every time I want to debug a
+chef-client run, I encapsulated this into a function within my
+ShefExtras library: <a href="https://github.com/stevendanna/knife-hacks/blob/master/shef/extras.rb#L11"><code>load_node_run_list</code></a>.</p>
+
+<h2>Inserting Breakpoints between Resources</h2>
+
+<p>A large run_list can easily contain hundreds of resources.  While we
+could step through the resources one-by-one, we often want to run
+through a large number of the resources, and then stop just before a
+resource that exhibiting some errant behavior.To do this, we need a
+way to insert breakpoints between the resources we are loading from
+recipes.</p>
+
+<p>Since "breakpoint" is a fully-fledged Chef resource, we could place
+the breakpoint resources directly in the relevant recipe. Within a
+normal chef-client run, the breakpoint resources will have no effect,
+allowing us to do this without much fear of endangering other
+nodes using the same recipe.</p>
+
+<p>However, I've found that it is more useful to be able to add the
+breakpoints via Shef, since we will often want to add new breakpoints
+as we gain new information.</p>
+
+<p>To accomplish this, I've created an <code>insert_break</code> function to do just
+that within my ShefExtras library.  Since it is a bit uglier than I
+would like and depends on mucking about in the depths of Chef's data
+structures, I am not going to walk through how the function works.
+However, here is an example of how to use it:</p>
+
+<ul>
+<li><p>First, we load the ShefExtras library and switch to recipe mode.
+<code>
+chef &gt; echo off
+chef &gt; require 'shef/extras'
+chef &gt; ShefExtras.load
+INFO: ShefExtras loaded!
+chef &gt; recipe
+</code></p></li>
+<li><p>Next, we load the resources from the recipe in the node's run list
+and insert a break point before one of them.</p></li>
+</ul>
+
+
+<p><code>
+chef:recipe &gt; load_node_run_list
+chef:recipe &gt; resources
+["log[Please set the set_fqdn attribute to desired hostname]",
+"template[/etc/ssh/ssh_known_hosts]"]
+chef:recipe &gt; insert_break :before, "template[/etc/ssh/ssh_known_hosts]"
+INFO:  Breakpoint added before template[/etc/ssh/ssh_known_hosts]
+chef:recipe &gt; ordered_resources
+=&gt; ["log[Please set the set_fqdn attribute to desired hostname]",
+"break[break-before-template[/etc/ssh/ssh_known_hosts]]",
+"template[/etc/ssh/ssh_known_hosts]"]
+</code></p>
+
+<ul>
+<li>Finally, we run chef.</li>
+</ul>
+
+
+<p><code>
+chef:recipe &gt; run_chef
+DEBUG: Processing log[Please set the set_fqdn attribute to desired hostname] on sdanna
+INFO:  Processing log[Please set the set_fqdn attribute to desired hostname] action write (hostname::default line 64)
+WARN:  Please set the set_fqdn attribute to desired hostname
+DEBUG: Processing break[break-before-template[/etc/ssh/ssh_known_hosts]] on sdanna
+INFO:  Processing break[break-before-template[/etc/ssh/ssh_known_hosts]] action break (/home/sdanna/src/knife-hacks/shef/extras.rb line 38)
+</code></p>
+
+<p>As you can see, the chef-client run halts before running the template
+resources.  At this point we could investigate elements of the system
+state that we believe may be having an effect on the template
+resource. When we are ready to continue, we can call <code>chef_run.resume</code>
+to continue the run.</p>
+
+<p>In this example, I've used three custom functions from the ShefExtras
+module:</p>
+
+<ul>
+<li><p><code>load_node_run_list</code> loads the resources from the
+node's run list in the same way as we did in the previous section.</p></li>
+<li><p><code>ordered_resources</code> returns a list of the resources in the order that
+chef-client would run them.</p></li>
+<li><p><code>insert_break(preposition, resource)</code> will place a break resource
+either before or after the given resource.</p></li>
+</ul>
+
+
+<h1>When Do I Use This</h1>
+
+<p>Using these tools to step through the resource list is particularly
+useful in the following types of situations:</p>
+
+<ul>
+<li>The run list contains recipes which are heavily dependent on execute
+or script resources that may not be behaving as you expect.</li>
+<li>A recipe makes significant run time modifications of node attributes.</li>
+<li>A recipe's behavior non-trivially branches based on pieces of the
+system's state that is not easily observed before or after the
+chef-client run has completed.</li>
+</ul>
+
+
+<p>While I still prefer to start with reading the relevant recipe and
+reasoning about what will happen, having the ability to quickly run a
+portion of the recipe and confirm a hypothesis about the state of the
+system has proven incredibly valuable.</p>
+
+<h1>More to Come</h1>
+
+<p>Future articles in this series may cover:</p>
+
+<ul>
+<li>Customizing your Shef configuration,</li>
+<li>Using Shef to make bulk changes to node data,</li>
+<li>Analyzing API responses using Shef,</li>
+<li>Running Shef as an inferior process in Emacs, and</li>
+<li>Debugging errors with resource compilation.</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

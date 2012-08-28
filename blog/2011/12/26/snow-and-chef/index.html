@@ -1,0 +1,712 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Snow and Chef - Steven Danna's Blog</title>
+  <meta name="author" content="Steven Danna">
+
+  
+  <meta name="description" content="One of my major interests is programming in R. I took a few days off
+for Christmas break, and in between talking with family, watching old
+movies, &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Steven Danna's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Steven Danna's Blog</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:stevendanna.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Snow and Chef</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-26T09:32:00-08:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>One of my major interests is programming in R.  I took a few days off
+for Christmas break, and in between talking with family, watching old
+movies, opening presents, and spreading Christmas cheer, I decided it
+would be fun to use Chef to create a parallel computing environment
+suitable for use with R.  As part of this project, I wrote:</p>
+
+<ul>
+<li>A Chef cookbook to install and configure R.</li>
+<li>An R package provider to easily install packages from CRAN.</li>
+<li>A Chef cookbook to install and configure MPI.</li>
+</ul>
+
+
+<p>This blog post outlines some of the highlights of this fun little
+project. It isn&#8217;t a step-by-step tutorial for creating such
+an environment.  I assume that already have:</p>
+
+<ul>
+<li>General familiarity with R and Chef.  I talk about cookbooks,
+recipes, and roles and assume you know what to do with them.</li>
+<li>A means of provisioning computation nodes, each already configured
+with hostnames that are resolvable to network addresses by other
+computation nodes.</li>
+</ul>
+
+
+<p>I used vagrant to provision a few VMs for testing these recipes and a
+small set of vagrant-specific cookbooks to ensure that each node had a
+resolvable hostname.</p>
+
+<h1>R Cookbook</h1>
+
+<p>The first item every node in the cluster will need is R.  The R
+cookbook on the Opscode Community site is a bit out of date.  I&#8217;ve
+created a newer version that can be found here:</p>
+
+<p><a href="http://github.com/stevendanna/cookbook-r">http://github.com/stevendanna/cookbook-r</a></p>
+
+<p>This cookbook does the following:</p>
+
+<ul>
+<li>Installs R from either the CRAN APT repository or from source depending
+on the platform.</li>
+<li>Defines a system-wide default CRAN mirror using an Rprofile.site
+template.</li>
+<li>Contains an R package provider that can install R packages available
+on CRAN.</li>
+</ul>
+
+
+<p>Currently this cookbook is linux-centric and best suited for use on
+Ubuntu or Debian.</p>
+
+<h2>R Package Provider</h2>
+
+<p>My R parallel computing environment relies on the &#8216;snow&#8217; and &#8216;Rmpi&#8217;
+packages to manage communication with computation nodes.  Further, I
+often need additional packages from CRAN when working with my cluster.
+The R package provider in my R cookbook allows for easy, automated
+installation of R packages.  It was written using Chef&#8217;s Light-weight
+Resource and Provider DSL.  The current version provides the minimal
+necessary functionality:</p>
+
+<figure class='code'><figcaption><span>&#8220;R package provider.  Corresponding resource description not shown.&#8221;</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">action</span> <span class="ss">:install</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">execute</span> <span class="s2">&quot;Install R Package&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">command</span> <span class="n">r_package_install</span><span class="p">(</span><span class="n">new_resource</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">not_if</span> <span class="n">r_package_is_installed</span><span class="p">(</span><span class="n">new_resource</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">action</span> <span class="ss">:upgrade</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">execute</span> <span class="s2">&quot;Upgrade R Package&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">command</span> <span class="n">r_package_install</span><span class="p">(</span><span class="n">new_resource</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">action</span> <span class="ss">:remove</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">r_package_remove</span> <span class="o">=</span> <span class="s2">&quot;remove.packages(&#39;</span><span class="si">#{</span><span class="n">new_resource</span><span class="o">.</span><span class="n">package</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+</span><span class='line'>  <span class="n">execute</span> <span class="s2">&quot;Remove R Package&quot;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">command</span> <span class="s2">&quot;echo </span><span class="se">\&quot;</span><span class="si">#{</span><span class="n">r_package_remove</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> | R --no-save --no-restore -q&quot;</span>
+</span><span class='line'>    <span class="n">only_if</span> <span class="n">r_package_is_installed</span><span class="p">(</span><span class="n">new_resource</span><span class="o">.</span><span class="n">package</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># The following helper functions construct strings that can be run as</span>
+</span><span class='line'><span class="c1"># Bash commands. For example, as the input of not_if or only_if</span>
+</span><span class='line'><span class="c1"># statements</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">r_package_is_installed</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">r_code</span> <span class="o">=</span> <span class="s2">&quot;if (any(installed.packages()[,1] == &#39;</span><span class="si">#{</span><span class="n">package_name</span><span class="si">}</span><span class="s2">&#39;)) { quit(&#39;no&#39;, 0, FALSE) }; quit(&#39;no&#39;, 1, FALSE)&quot;</span>
+</span><span class='line'>  <span class="s2">&quot;echo </span><span class="se">\&quot;</span><span class="si">#{</span><span class="n">r_code</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> | R --no-save --no-restore -q&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">r_package_install</span><span class="p">(</span><span class="n">package_name</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">r_code</span> <span class="o">=</span> <span class="s2">&quot;install.packages(&#39;</span><span class="si">#{</span><span class="n">package_name</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+</span><span class='line'>  <span class="s2">&quot;echo </span><span class="se">\&quot;</span><span class="si">#{</span><span class="n">r_code</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2"> | R --no-save --no-restore -q&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>It supports three actions: <code>:install</code>, <code>:upgrade</code>, and
+<code>:remove</code>; however, it is not very feature-rich.  A few features I
+would like to add include:</p>
+
+<ul>
+<li>The ability to specify the CRAN mirror or repository.</li>
+<li>The ability to install local packages</li>
+<li>The ability to install packages on a per-user basis.</li>
+</ul>
+
+
+<p>Despite these shortcomings, the current provider works well enough for
+my purposes and is a good example of Chef&#8217;s high-level of
+&#8216;Whip-It-Up-itude.&#8217;  Within a few minutes, I was able to go from some
+quick-and-dirty R code to a Chef provider that I can iteratively
+improve as my needs become more complex.  While I did not include it
+in the repository linked above, I was able to create a small <code>R::snow</code>
+recipe that does little more than use this provider:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">R_package</span> <span class="s2">&quot;snow&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">case</span> <span class="n">node</span><span class="o">[</span><span class="s1">&#39;R&#39;</span><span class="o">][</span><span class="s1">&#39;snow&#39;</span><span class="o">][</span><span class="s1">&#39;cluster_type&#39;</span><span class="o">]</span>
+</span><span class='line'><span class="k">when</span> <span class="s1">&#39;mpi&#39;</span>
+</span><span class='line'>  <span class="n">include_recipe</span> <span class="s1">&#39;mpi&#39;</span>
+</span><span class='line'>  <span class="no">R_package</span> <span class="s1">&#39;Rmpi&#39;</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>MPI Cookbook</h1>
+
+<p>The R package &#8216;snow&#8217; can use various backends to communicate with
+computation nodes.  The default method for most commands is &#8220;Message
+Passing Interface&#8221; (MPI).  MPI is also generally useful outside of R
+as you can easily use MPI utilities such as mpirun to execute a
+command on multiple computation nodes and use MPI&#8217;s C libraries to
+write programs designed for parallel computation.</p>
+
+<p>MPI has multiple implementation.  I&#8217;ve written an MPI cookbook that
+can install <a href="http://www.open-mpi.org/">openmpi</a> on Ubuntu.  It can be found here:</p>
+
+<p><a href="https://github.com/stevendanna/cookbook-mpi">https://github.com/stevendanna/cookbook-mpi</a></p>
+
+<p>This cookbook does the following:</p>
+
+<ul>
+<li>Installs openmpi on Ubuntu</li>
+<li>Constructs a list of computation nodes within your environment using
+search and then renders a default hostfile that is used by MPI
+commands such as mpirun.</li>
+<li>Sets basic configuration options that I have found useful.</li>
+</ul>
+
+
+<p>While MPI does not natively contain the concepts of master and slaves
+(every MPI node can talk to any other MPI node), I found it useful to
+include the concept of a node&#8217;s &#8220;MPI role.&#8221;  I use this role to
+populate the default hostfile, since there are often cases where you
+might want MPI installed on a machine within your environment but
+would not want that machine being used for computation.</p>
+
+<h1>Putting it all Together</h1>
+
+<p>I put this all together using two roles: snow_master and snow_slave</p>
+
+<figure class='code'><figcaption><span>roles/snow_master.json</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;snow_master&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;json_class&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef::Role&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;chef_type&quot;</span> <span class="p">:</span> <span class="s2">&quot;role&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;run_list&quot;</span> <span class="p">:</span> <span class="o">[</span> <span class="s2">&quot;recipe[R]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[R::snow]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[mpi]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[ssh_known_hosts]&quot;</span> <span class="o">]</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;default_attributes&quot;</span> <span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>        <span class="s2">&quot;mpi&quot;</span> <span class="p">:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;master&quot;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>roles/snow_slave.json</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="s2">&quot;name&quot;</span> <span class="p">:</span> <span class="s2">&quot;snow_slave&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;json_class&quot;</span> <span class="p">:</span> <span class="s2">&quot;Chef::Role&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;chef_type&quot;</span> <span class="p">:</span> <span class="s2">&quot;role&quot;</span><span class="p">,</span>
+</span><span class='line'>    <span class="s2">&quot;run_list&quot;</span> <span class="p">:</span> <span class="o">[</span> <span class="s2">&quot;recipe[R]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[R::snow]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[mpi]&quot;</span><span class="p">,</span> <span class="s2">&quot;recipe[ssh_known_hosts]&quot;</span> <span class="o">]</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>By applying the snow_slave role to all of the nodes I wanted within
+my computation cluster and the snow_master role to the machine I will
+use to launch jobs in my cluster, I can quickly bring up a new cluster
+of machines suitable for doing parallel computation in R using snow.</p>
+
+<p>The ssh_known_hosts recipe is directly from the Opscode community
+site and helps make ssh connections between the nodes a bit smoother.</p>
+
+<h1>Twelve Days of Chistmas</h1>
+
+<p>As an example of how easy it is to do simple parallel computation
+using snow, consider the following Chistmas-themed R function.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'>twelve_days_of_christmas <span class="o">&lt;-</span> <span class="kr">function</span> <span class="p">(</span>n<span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kr">if</span> <span class="p">(</span>!any<span class="p">(</span><span class="m">1</span>:<span class="m">12</span> <span class="o">==</span> n<span class="p">))</span> stop<span class="p">(</span><span class="s">&quot;Not a day of Chirstmas!&quot;</span><span class="p">)</span>
+</span><span class='line'>  LYRICS <span class="o">&lt;-</span> c<span class="p">(</span><span class="s">&quot;a Partridge in a Pear Tree.&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Two Turtle Doves&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Three French Hens&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Four Colly Birds&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Five Golden Rings&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Six Geese-a-Laying&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Seven Swans-a-Swimming&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Eight Maids-a-Milking&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Nine Ladies Dancing&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Ten Lords-a-Leaping&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Eleven Pipers Piping&quot;</span><span class="p">,</span>
+</span><span class='line'>              <span class="s">&quot;Twleve Drummers Drumming&quot;</span><span class="p">)</span>
+</span><span class='line'>  append <span class="o">=</span> c<span class="p">(</span><span class="s">&quot;st&quot;</span><span class="p">,</span> <span class="s">&quot;nd&quot;</span><span class="p">,</span> <span class="s">&quot;rd&quot;</span><span class="p">,</span> rep<span class="p">(</span><span class="s">&quot;th&quot;</span><span class="p">,</span><span class="m">9</span><span class="p">))</span>
+</span><span class='line'>  <span class="kr">if</span> <span class="p">(</span>n <span class="o">&gt;</span> <span class="m">1</span><span class="p">)</span> LYRICS<span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="o">=</span> paste<span class="p">(</span><span class="s">&quot;and&quot;</span><span class="p">,</span> LYRICS<span class="p">[</span><span class="m">1</span><span class="p">])</span>
+</span><span class='line'>  paste<span class="p">(</span><span class="s">&quot;On the&quot;</span><span class="p">,</span>
+</span><span class='line'>        paste<span class="p">(</span>n<span class="p">,</span> append<span class="p">[</span>n<span class="p">],</span> sep<span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">),</span>
+</span><span class='line'>        <span class="s">&quot;day of Christmas, my true love gave to me&quot;</span><span class="p">,</span>
+</span><span class='line'>        paste<span class="p">(</span>LYRICS<span class="p">[</span>n:<span class="m">1</span><span class="p">],</span> collapse<span class="o">=</span><span class="s">&quot;, &quot;</span><span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Assuming chef-client has been run on all of our nodes, we can simply
+log into our &#8216;snow master&#8217;, boot up R, and run the following code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='r'><span class='line'><span class="o">&gt;</span> library<span class="p">(</span><span class="s">&#39;snow&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;</span> source<span class="p">(</span><span class="s">&#39;twelve_days.r&#39;</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;</span> cl <span class="o">&lt;-</span> makeCluster<span class="p">(</span><span class="m">2</span><span class="p">)</span>
+</span><span class='line'><span class="o">&gt;</span> clusterApply<span class="p">(</span>cl<span class="p">,</span> <span class="m">1</span>:<span class="m">12</span><span class="p">,</span> twelve_days_of_christmas<span class="p">)</span>
+</span><span class='line'><span class="p">[[</span><span class="m">1</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 1st day of Christmas, my true love gave to me a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">2</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 2nd day of Christmas, my true love gave to me Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">3</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 3rd day of Christmas, my true love gave to me Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">4</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 4th day of Christmas, my true love gave to me Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">5</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 5th day of Christmas, my true love gave to me Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">6</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 6th day of Christmas, my true love gave to me Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">7</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 7th day of Christmas, my true love gave to me Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">8</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 8th day of Christmas, my true love gave to me Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">9</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 9th day of Christmas, my true love gave to me Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">10</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 10th day of Christmas, my true love gave to me Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">11</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 11th day of Christmas, my true love gave to me Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">[[</span><span class="m">12</span><span class="p">]]</span>
+</span><span class='line'><span class="p">[</span><span class="m">1</span><span class="p">]</span> <span class="s">&quot;On the 12th day of Christmas, my true love gave to me Twleve Drummers Drumming, Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Conclusion</h1>
+
+<p>Overall this was a fun project to do over break.  It took a handful of
+hours to complete, most of which was dedicated to a few problems not
+discussed in this post:</p>
+
+<ul>
+<li>Making hostnames resolvable and other network oddities within my
+Vagrant test environment.</li>
+<li>Deciding which implementation of MPI to use.</li>
+</ul>
+
+
+<p>I personally would like to see further work done around using Chef to
+manage large R environments. Some work I hope to do in the not to
+distant future includes:</p>
+
+<ul>
+<li>Expand the R cookbook to better support OS X.</li>
+<li>Add support to detect the latest version when doing a source install.</li>
+<li>Expand the R package provider to include more of the features available
+when installing package from within R.</li>
+<li>Write an R Ohai plugin that would collect information about:
+
+<ul>
+<li>R version and capabilities</li>
+<li>R packages installed</li>
+</ul>
+</li>
+</ul>
+
+
+<p>Happy Holidays!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Steven Danna</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-12-26T09:32:00-08:00" pubdate data-updated="true">Dec 26<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/r/'>R</a>, <a class='category' href='/blog/categories/chef/'>chef</a>, <a class='category' href='/blog/categories/mpi/'>mpi</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/11/26/emacs-configuration-rewrite/" title="Previous Post: Emacs Configuration Rewrite">&laquo; Emacs Configuration Rewrite</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/01/01/r-ohai-plugin/" title="Next Post: R ohai plugin">R ohai plugin &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/10/simple-tools-do-times-and-summarize/">Simple Tools: do.times and summarize</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/26/snow-and-chef/">Snow and Chef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/11/26/emacs-configuration-rewrite/">Emacs Configuration Rewrite</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/stevendanna">@stevendanna</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'stevendanna',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("SteveDanna", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Steven Danna -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'allons-y';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/';
+        var disqus_url = 'http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

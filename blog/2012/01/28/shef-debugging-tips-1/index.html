@@ -1,0 +1,588 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef - Steven Danna's Blog</title>
+  <meta name="author" content="Steven Danna">
+
+  
+  <meta name="description" content="Recently, I&#8217;ve used Shef,
+the interactive Chef console, to get to the bottom of some rather
+tricky problems. In the process, I developed a &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Steven Danna's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Steven Danna's Blog</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:stevendanna.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Shef Tips and Tricks: Stepping Through Chef-client Runs With Shef</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-28T15:13:00-08:00" pubdate data-updated="true">Jan 28<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Recently, I&#8217;ve used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
+the interactive Chef console, to get to the bottom of some rather
+tricky problems.  In the process, I developed a number of tricks and
+tools for productively debugging problems using Shef.  This is the first
+in a series of articles I&#8217;d like to write on the most useful of these
+tips.</p>
+
+<p>In this article I will discuss how I use Shef and a handful of
+additional functions to debug Chef-client runs by stepping through a
+node&#8217;s run list, breaking before or after specific resources in order
+to inspect the state of the system.  Note that this is not intended
+to be an introduction to Shef.  For that, you should head over to the
+<a href="http://wiki.opscode.com/display/chef/Getting+Started+with+Shef">Chef Wiki</a>.</p>
+
+<h1>Setup</h1>
+
+<p>Some of the functions I mention in this article are in the <code>shef/</code>
+directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you&#8217;d like to use them,
+you can download this repository from Github:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>mkdir ~/src
+</span><span class='line'><span class="nb">cd</span> ~/src
+</span><span class='line'>git clone git://github.com/stevendanna/knife-hacks.git
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>To make it easy to include files from this repository inside Shef, you
+can use the following in the relevant configuration file:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">unless</span> <span class="n">defined?</span><span class="p">(</span><span class="no">Shef</span><span class="p">)</span><span class="o">.</span><span class="n">nil?</span>
+</span><span class='line'>  <span class="vg">$:</span> <span class="o">&lt;&lt;</span> <span class="no">File</span><span class="o">.</span><span class="n">expand_path</span><span class="p">(</span><span class="s2">&quot;~/src/knife-hacks/&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All of the examples I will be doing will be on my local workstation.
+For ease, I have placed this in my <code>knife.rb</code> file, which I will
+pass to Shef using the <code>-c</code> command line option.  However, a similar
+approach will work within a <code>client.rb</code> for a node or a custom <code>shef.rb</code>
+file.</p>
+
+<h1>Introduction</h1>
+
+<p>Shef is an interactive console for Chef.  Essentially, it is IRB with
+support for recipe and attribute syntax and a number of Chef-relevant
+functions.</p>
+
+<p>Here&#8217;s a typical Shef session that you might find in an introduction
+to Shef.  We add some resources, including a <em>breakpoint</em> resource and
+start a chef-run.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span> <span class="o">&gt;</span> <span class="n">recipe</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">echo</span> <span class="n">off</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">log</span> <span class="s2">&quot;a&quot;</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">breakpoint</span> <span class="s2">&quot;STOP&quot;</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">log</span> <span class="s2">&quot;b&quot;</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">run_chef</span>
+</span><span class='line'><span class="no">DEBUG</span><span class="p">:</span> <span class="no">Processing</span> <span class="n">log</span><span class="o">[</span><span class="n">a</span><span class="o">]</span> <span class="n">on</span> <span class="n">sdanna</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="no">Processing</span> <span class="n">log</span><span class="o">[</span><span class="n">a</span><span class="o">]</span> <span class="n">action</span> <span class="n">write</span> <span class="p">((</span><span class="n">irb</span><span class="c1">#1) line 3)</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="n">a</span>
+</span><span class='line'><span class="no">DEBUG</span><span class="p">:</span> <span class="no">Processing</span> <span class="o">[</span><span class="sr">/home/s</span><span class="n">danna</span><span class="o">/.</span><span class="n">rvm</span><span class="o">/</span><span class="n">gems</span><span class="o">/</span><span class="n">ruby</span><span class="o">-</span><span class="mi">1</span><span class="o">.</span><span class="mi">9</span><span class="o">.</span><span class="mi">3</span><span class="o">-</span><span class="n">p0</span><span class="o">/</span><span class="n">gems</span><span class="o">/</span><span class="n">chef</span><span class="o">-</span><span class="mi">0</span><span class="o">.</span><span class="mi">10</span><span class="o">.</span><span class="mi">8</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">chef</span><span class="o">/</span><span class="n">mixin</span><span class="o">/</span><span class="n">recipe_definition_dsl_core</span><span class="o">.</span><span class="n">rb</span><span class="p">:</span><span class="mi">61</span><span class="ss">:in</span> <span class="sb">`new&#39;] on sdanna</span>
+</span><span class='line'><span class="sb">INFO:  Processing [/home/sdanna/.rvm/gems/ruby-1.9.3-p0/gems/chef-0.10.8/lib/chef/mixin/recipe_definition_dsl_core.rb:61:in `</span><span class="kp">new</span><span class="err">&#39;</span><span class="o">]</span> <span class="n">action</span> <span class="k">break</span> <span class="p">((</span><span class="n">irb</span><span class="c1">#1) line</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The breakpoint stops the chef-client run, allowing you to
+investigate the state of the system and then resume the run with <code>chef_run.resume</code></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">chef_run</span><span class="o">.</span><span class="n">resume</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="no">Processing</span> <span class="n">log</span><span class="o">[</span><span class="n">b</span><span class="o">]</span> <span class="n">action</span> <span class="n">write</span> <span class="p">((</span><span class="n">irb</span><span class="c1">#1) line 6)</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="n">b</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>With these basic features, Shef can be great for running quick tests
+of recipe code.  However, it is not immediately clear how you get from
+here to being able to step through an actual chef-client run.  To
+effectively step through a chef-client run, we need to be able to:</p>
+
+<ul>
+<li>Load resources from the recipes in the node&#8217;s run_list, and</li>
+<li>Insert breakpoints between the loaded resources.</li>
+</ul>
+
+
+<p>The remainder of this article covers how to accomplish these two
+tasks.</p>
+
+<h2>Loading Resources from the RunList</h2>
+
+<p>Invoking Shef with the <code>-z</code> argument enables client-mode, forcing it to
+download the relevant recipes from the node&#8217;s run_list just as
+chef-client would, but it does not processes these recipes and add
+their resources to the resource collection.</p>
+
+<p>Because Shef&#8217;s recipe context allows you to use the recipe DSL, we can
+add the resources from an individual recipe using the <code>include_recipe</code>
+function.  We can only use <code>include_recipe</code> on recipes that Shef
+downloaded when we started it up.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">resources</span>
+</span><span class='line'><span class="o">[]</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">include_recipe</span> <span class="s2">&quot;ssh_known_hosts&quot;</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">resources</span>
+</span><span class='line'><span class="o">[</span><span class="s2">&quot;template[/etc/ssh/ssh_known_hosts]&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>In order to load all of the recipes we need to iterate over a list of
+all the recipes in the run_list and call <code>include_recipe</code> on each of
+them.  Since the run_list can contain roles, we also need to ensure we
+get the expanded run_list.  There are a number of ways to get the
+expanded run_list.  Here is one:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">node</span><span class="o">.</span><span class="n">run_list</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">chef_environment</span><span class="p">)</span><span class="o">.</span><span class="n">recipes</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">r</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">include_recipe</span> <span class="n">r</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This simple bit of Ruby is much like the <em>resource compilation</em> phase of
+a chef-client run.  Just as within a chef-client run, you may
+encounter an error as you try to include the recipes. In a future
+article, I may discuss better ways to step through this compilation
+phase.</p>
+
+<p>Since I&#8217;d rather not type the above every time I want to debug a
+chef-client run, I encapsulated this into a function within my
+ShefExtras library: <a href="https://github.com/stevendanna/knife-hacks/blob/master/shef/extras.rb#L11"><code>load_node_run_list</code></a>.</p>
+
+<h2>Inserting Breakpoints between Resources</h2>
+
+<p>A large run_list can easily contain hundreds of resources.  While we
+could step through the resources one-by-one, we often want to run
+through a large number of the resources, and then stop just before a
+resource that exhibiting some errant behavior.To do this, we need a
+way to insert breakpoints between the resources we are loading from
+recipes.</p>
+
+<p>Since &#8220;breakpoint&#8221; is a fully-fledged Chef resource, we could place
+the breakpoint resources directly in the relevant recipe. Within a
+normal chef-client run, the breakpoint resources will have no effect,
+allowing us to do this without much fear of endangering other
+nodes using the same recipe.</p>
+
+<p>However, I&#8217;ve found that it is more useful to be able to add the
+breakpoints via Shef, since we will often want to add new breakpoints
+as we gain new information.</p>
+
+<p>To accomplish this, I&#8217;ve created an <code>insert_break</code> function to do just
+that within my ShefExtras library.  Since it is a bit uglier than I
+would like and depends on mucking about in the depths of Chef&#8217;s data
+structures, I am not going to walk through how the function works.
+However, here is an example of how to use it:</p>
+
+<ul>
+<li>First, we load the ShefExtras library and switch to recipe mode.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span> <span class="o">&gt;</span> <span class="n">echo</span> <span class="n">off</span>
+</span><span class='line'><span class="n">chef</span> <span class="o">&gt;</span> <span class="nb">require</span> <span class="s1">&#39;shef/extras&#39;</span>
+</span><span class='line'><span class="n">chef</span> <span class="o">&gt;</span> <span class="no">ShefExtras</span><span class="o">.</span><span class="n">load</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span> <span class="no">ShefExtras</span> <span class="n">loaded!</span>
+</span><span class='line'><span class="n">chef</span> <span class="o">&gt;</span> <span class="n">recipe</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Next, we load the resources from the recipe in the node&#8217;s run list
+and insert a break point before one of them.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">load_node_run_list</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">resources</span>
+</span><span class='line'><span class="o">[</span><span class="s2">&quot;log[Please set the set_fqdn attribute to desired hostname]&quot;</span><span class="p">,</span>
+</span><span class='line'><span class="s2">&quot;template[/etc/ssh/ssh_known_hosts]&quot;</span><span class="o">]</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">insert_break</span> <span class="ss">:before</span><span class="p">,</span> <span class="s2">&quot;template[/etc/ssh/ssh_known_hosts]&quot;</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="no">Breakpoint</span> <span class="n">added</span> <span class="n">before</span> <span class="n">template</span><span class="o">[</span><span class="sr">/etc/ss</span><span class="n">h</span><span class="o">/</span><span class="n">ssh_known_hosts</span><span class="o">]</span>
+</span><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">ordered_resources</span>
+</span><span class='line'><span class="o">=&gt;</span> <span class="o">[</span><span class="s2">&quot;log[Please set the set_fqdn attribute to desired hostname]&quot;</span><span class="p">,</span>
+</span><span class='line'><span class="s2">&quot;break[break-before-template[/etc/ssh/ssh_known_hosts]]&quot;</span><span class="p">,</span>
+</span><span class='line'><span class="s2">&quot;template[/etc/ssh/ssh_known_hosts]&quot;</span><span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Finally, we run chef.</li>
+</ul>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">chef</span><span class="ss">:recipe</span> <span class="o">&gt;</span> <span class="n">run_chef</span>
+</span><span class='line'><span class="no">DEBUG</span><span class="p">:</span> <span class="no">Processing</span> <span class="n">log</span><span class="o">[</span><span class="no">Please</span> <span class="n">set</span> <span class="n">the</span> <span class="n">set_fqdn</span> <span class="n">attribute</span> <span class="n">to</span> <span class="n">desired</span> <span class="n">hostname</span><span class="o">]</span> <span class="n">on</span> <span class="n">sdanna</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="no">Processing</span> <span class="n">log</span><span class="o">[</span><span class="no">Please</span> <span class="n">set</span> <span class="n">the</span> <span class="n">set_fqdn</span> <span class="n">attribute</span> <span class="n">to</span> <span class="n">desired</span> <span class="n">hostname</span><span class="o">]</span> <span class="n">action</span> <span class="n">write</span> <span class="p">(</span><span class="n">hostname</span><span class="o">::</span><span class="n">default</span> <span class="n">line</span> <span class="mi">64</span><span class="p">)</span>
+</span><span class='line'><span class="no">WARN</span><span class="p">:</span>  <span class="no">Please</span> <span class="n">set</span> <span class="n">the</span> <span class="n">set_fqdn</span> <span class="n">attribute</span> <span class="n">to</span> <span class="n">desired</span> <span class="n">hostname</span>
+</span><span class='line'><span class="no">DEBUG</span><span class="p">:</span> <span class="no">Processing</span> <span class="k">break</span><span class="o">[</span><span class="k">break</span><span class="o">-</span><span class="n">before</span><span class="o">-</span><span class="n">template</span><span class="o">[</span><span class="sr">/etc/ss</span><span class="n">h</span><span class="o">/</span><span class="n">ssh_known_hosts</span><span class="o">]]</span> <span class="n">on</span> <span class="n">sdanna</span>
+</span><span class='line'><span class="no">INFO</span><span class="p">:</span>  <span class="no">Processing</span> <span class="k">break</span><span class="o">[</span><span class="k">break</span><span class="o">-</span><span class="n">before</span><span class="o">-</span><span class="n">template</span><span class="o">[</span><span class="sr">/etc/ss</span><span class="n">h</span><span class="o">/</span><span class="n">ssh_known_hosts</span><span class="o">]]</span> <span class="n">action</span> <span class="k">break</span> <span class="p">(</span><span class="sr">/home/s</span><span class="n">danna</span><span class="o">/</span><span class="n">src</span><span class="o">/</span><span class="n">knife</span><span class="o">-</span><span class="n">hacks</span><span class="o">/</span><span class="n">shef</span><span class="o">/</span><span class="n">extras</span><span class="o">.</span><span class="n">rb</span> <span class="n">line</span> <span class="mi">38</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>As you can see, the chef-client run halts before running the template
+resources.  At this point we could investigate elements of the system
+state that we believe may be having an effect on the template
+resource. When we are ready to continue, we can call <code>chef_run.resume</code>
+to continue the run.</p>
+
+<p>In this example, I&#8217;ve used three custom functions from the ShefExtras
+module:</p>
+
+<ul>
+<li><p><code>load_node_run_list</code> loads the resources from the
+node&#8217;s run list in the same way as we did in the previous section.</p></li>
+<li><p><code>ordered_resources</code> returns a list of the resources in the order that
+chef-client would run them.</p></li>
+<li><p><code>insert_break(preposition, resource)</code> will place a break resource
+either before or after the given resource.</p></li>
+</ul>
+
+
+<h1>When Do I Use This</h1>
+
+<p>Using these tools to step through the resource list is particularly
+useful in the following types of situations:</p>
+
+<ul>
+<li>The run list contains recipes which are heavily dependent on execute
+or script resources that may not be behaving as you expect.</li>
+<li>A recipe makes significant run time modifications of node attributes.</li>
+<li>A recipe&#8217;s behavior non-trivially branches based on pieces of the
+system&#8217;s state that is not easily observed before or after the
+chef-client run has completed.</li>
+</ul>
+
+
+<p>While I still prefer to start with reading the relevant recipe and
+reasoning about what will happen, having the ability to quickly run a
+portion of the recipe and confirm a hypothesis about the state of the
+system has proven incredibly valuable.</p>
+
+<h1>More to Come</h1>
+
+<p>Future articles in this series may cover:</p>
+
+<ul>
+<li>Customizing your Shef configuration,</li>
+<li>Using Shef to make bulk changes to node data,</li>
+<li>Analyzing API responses using Shef,</li>
+<li>Running Shef as an inferior process in Emacs, and</li>
+<li>Debugging errors with resource compilation.</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Steven Danna</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-01-28T15:13:00-08:00" pubdate data-updated="true">Jan 28<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/chef/'>chef</a>, <a class='category' href='/blog/categories/shef/'>shef</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/01/r-ohai-plugin/" title="Previous Post: R ohai plugin">&laquo; R ohai plugin</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/03/10/simple-tools-do-times-and-summarize/" title="Next Post: Simple Tools: do.times and summarize">Simple Tools: do.times and summarize &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/10/simple-tools-do-times-and-summarize/">Simple Tools: do.times and summarize</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/26/snow-and-chef/">Snow and Chef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/11/26/emacs-configuration-rewrite/">Emacs Configuration Rewrite</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/stevendanna">@stevendanna</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'stevendanna',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("SteveDanna", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Steven Danna -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'allons-y';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/';
+        var disqus_url = 'http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,491 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Simple Tools: do.times and summarize - Steven Danna's Blog</title>
+  <meta name="author" content="Steven Danna">
+
+  
+  <meta name="description" content="Recently, a coworker has been sharing some higher-order shell
+functions he has been writing, inspired by the first of these
+articles: Higher Order &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Steven Danna's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Steven Danna's Blog</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:stevendanna.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Simple Tools: do.times and Summarize</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-10T00:00:00-08:00" pubdate data-updated="true">Mar 10<span>th</span>, 2012</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Recently, a coworker has been sharing some higher-order shell
+functions he has been writing, inspired by the first of these
+articles:</p>
+
+<ul>
+<li><a href="http://yannesposito.com/Scratch/en/blog/Higher-order-function-in-zsh">Higher Order Functions in Zsh</a></li>
+<li><a href="http://conway.rutgers.edu/~ccshan/wiki/blog/posts/Higher-order_shell/">Higher-order shell</a></li>
+</ul>
+
+
+<p>Both discuss small scripts and shell functions that allow you to more
+easily compose simple unix tools to complete complex task.</p>
+
+<p>My own <code>~/bin</code> contains similar higher-order functions and other
+simple tools.  Like most unix tools, they do a single task and are
+composable with other tools on the command line.  However, I am often
+surprised by the number of heavy command-line users I see who don&#8217;t
+regularly encapsulate repetitive tasks or constructions into shell
+functions or aliases.</p>
+
+<p>In my experience, the majority of such tools</p>
+
+<ul>
+<li>take less than 5 minutes to write,</li>
+<li>require almost no maintenance, and</li>
+<li>prove repeatably useful after their initial creation.</li>
+</ul>
+
+
+<p>This post shares two tools in my <code>~/bin</code> that I used this weekend.  I
+created both while ago for entirely different purposes, but was still
+able to easily use them together without modification.</p>
+
+<h2>do.times N COMMAND</h2>
+
+<p><code>do.times</code> executes COMMAND, N times.  For example,</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ do.times 5 echo hello
+</span><span class='line'>hello
+</span><span class='line'>hello
+</span><span class='line'>hello
+</span><span class='line'>hello
+</span><span class='line'>hello</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <a href="https://gist.github.com/2014470">tool itself</a> is little more than
+a wrapper to a shell <code>for</code> loop, but the typing it saves and the
+semantic value it provides when constructing a command line has proven
+valuable on numerous occasions.</p>
+
+<h2>summarize [OPTIONS] [FILE]</h2>
+
+<p><code>summarize</code> reads columns of data from either a file given as an
+argument or its standard input and provides basic summary statistics.
+I originally wrote this to do quick spot checks of data files I was
+working on before sending them off to collaborators.</p>
+
+<p>Here is an example of its output:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ summarize --sep="," --header data_file
+</span><span class='line'>    wombats            frogs
+</span><span class='line'> Min.   :0.01911   Min.   :0.02979
+</span><span class='line'> 1st Qu.:0.22101   1st Qu.:0.32504
+</span><span class='line'> Median :0.51178   Median :0.50530
+</span><span class='line'> Mean   :0.51318   Mean   :0.51650
+</span><span class='line'> 3rd Qu.:0.79354   3rd Qu.:0.71484
+</span><span class='line'> Max.   :0.99561   Max.   :0.99827
+</span><span class='line'> It requires
+</span><span class='line'>Covariance Matrix:
+</span><span class='line'>            wombats       frogs
+</span><span class='line'>wombats 0.084647845 0.006553818
+</span><span class='line'>frogs   0.006553818 0.074872790
+</span><span class='line'>
+</span><span class='line'>Column Sums:
+</span><span class='line'> wombats    frogs
+</span><span class='line'>51.31770 51.65021
+</span><span class='line'>
+</span><span class='line'>Number of Rows:
+</span><span class='line'>[1] 100
+</span><span class='line'>
+</span><span class='line'>First 6 Rows:
+</span><span class='line'>     wombats     frogs
+</span><span class='line'>1 0.15767016 0.3545217
+</span><span class='line'>2 0.42022851 0.5092576
+</span><span class='line'>3 0.22144630 0.6796292
+</span><span class='line'>4 0.84320607 0.6749124
+</span><span class='line'>5 0.07491303 0.3430995
+</span><span class='line'>6 0.65910419 0.3053271</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While it doesn&#8217;t seem like much, these basic statistics are often all
+one needs to ensure they are sending the correct data to a teammate or
+to quickly answer a basic question.</p>
+
+<p><a href="https://gist.github.com/2014462">summarize</a> uses Rscript, an
+executable shipped with R that allows one to create scripts using R.
+Recently, I added a dependency on the CRAN package <code>optparse</code> to make
+handling options a bit more straightforward.  With the exception of
+the option parsing, the R code itself is likely easily understood by
+anyone who has used R.</p>
+
+<h1>Smoke Testing Speed Improvements</h1>
+
+<p>This weekend I have been working on a small set of improvements to
+make some not-so-simple tools I use on a regular basis a bit
+faster. Combining <code>do.times</code> and <code>summarize</code> allowed me to quickly
+generate a smoke test for whether the speed improvements I was
+implementing were working.  To protect the innocent, I&#8217;ll use <code>git
+--version</code> as an example of the command I wanted to test:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>$ do.times 100 time git --version 2&gt;&1 | awk '/real/ {print substr($2,3,5)}' | summarize
+</span><span class='line'>       V1
+</span><span class='line'> Min.   :0.00100
+</span><span class='line'> 1st Qu.:0.00100
+</span><span class='line'> Median :0.00100
+</span><span class='line'> Mean   :0.00116
+</span><span class='line'> 3rd Qu.:0.00100
+</span><span class='line'> Max.   :0.00400
+</span><span class='line'>
+</span><span class='line'>Covariance Matrix:
+</span><span class='line'>             V1
+</span><span class='line'>V1 2.771717e-07
+</span><span class='line'>
+</span><span class='line'>Column Sums:
+</span><span class='line'>   V1
+</span><span class='line'>0.116
+</span><span class='line'>
+</span><span class='line'>Number of Rows:
+</span><span class='line'>[1] 100
+</span><span class='line'>
+</span><span class='line'>First 6 Rows:
+</span><span class='line'>     V1
+</span><span class='line'>1 0.004
+</span><span class='line'>2 0.004
+</span><span class='line'>3 0.001
+</span><span class='line'>4 0.002
+</span><span class='line'>5 0.001
+</span><span class='line'>6 0.001</span></code></pre></td></tr></table></div></figure>
+
+
+<p>While this isn&#8217;t scientific testing by any means, it was enough to
+keep me moving in the right direction, and simple enough that the cost
+of creating and running the test was practically zero.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Steven Danna</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-10T00:00:00-08:00" pubdate data-updated="true">Mar 10<span>th</span>, 2012</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/r/'>R</a>, <a class='category' href='/blog/categories/shell/'>shell</a>, <a class='category' href='/blog/categories/unix/'>unix</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/01/28/shef-debugging-tips-1/" title="Previous Post: Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef">&laquo; Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/10/simple-tools-do-times-and-summarize/">Simple Tools: do.times and summarize</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/26/snow-and-chef/">Snow and Chef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/11/26/emacs-configuration-rewrite/">Emacs Configuration Rewrite</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/stevendanna">@stevendanna</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'stevendanna',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("SteveDanna", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Steven Danna -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'allons-y';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/';
+        var disqus_url = 'http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

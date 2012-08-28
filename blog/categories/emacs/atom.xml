@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: emacs | Steven Danna's Blog]]></title>
+  <link href="http://stevendanna.github.com/blog/categories/emacs/atom.xml" rel="self"/>
+  <link href="http://stevendanna.github.com/"/>
+  <updated>2012-08-28T00:46:49-07:00</updated>
+  <id>http://stevendanna.github.com/</id>
+  <author>
+    <name><![CDATA[Steven Danna]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Emacs Configuration Rewrite]]></title>
+    <link href="http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/"/>
+    <updated>2011-11-26T00:00:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite</id>
+    <content type="html"><![CDATA[<p>I am in the process of rebooting my GTD workflow.  Since I do most of
+my work in Emacs, I decided it was also time to refactor and improve my Emacs
+configuration.  What was wrong with my configuration?</p>
+
+<ul>
+<li>I was living in the past (Emacs 23) and wanted to live in the future
+(Emacs 24).</li>
+<li>My configuration file was not under version control.  And, because
+of the differences between Fedora and OS X, the configuration on my
+work laptop and personal laptop had drifted significantly.</li>
+<li>My <code>.emacs</code> file was poorly structured and easily broken.</li>
+</ul>
+
+
+<p>I've documented my work on my Emacs configuration here, mostly as a
+means of reminding my future self what I did.  Overall the experience
+was pleasant.  Emacs 24 brings many long-needed features to Emacs.</p>
+
+<p>The end result can be seen below.</p>
+
+<p><img src="/assets/emacs-desktop.png"></p>
+
+<h1>Installing Emacs 24:</h1>
+
+<p>On Fedora, I installed directly from git:
+``` bash</p>
+
+<h1>Install Dependencies</h1>
+
+<p>sudo yum-builddep emacs
+sudo yum install</p>
+
+<h1>Get source</h1>
+
+<p>cd ~/src
+git clone git://git.savannah.gnu.org/emacs.git
+cd emacs</p>
+
+<h1>Install</h1>
+
+<p>./autogen.sh
+./configure
+make
+sudo make install
+```</p>
+
+<p>On my Mac, I installed Emacs 24 via Homebrew:
+<code>bash
+brew uninstall emacs
+brew install emacs --cocoa --use-git-head --HEAD
+ln -s /usr/local/Cellar/emacs/HEAD/Emacs.app /Applications/
+</code></p>
+
+<h1>Rebuilding My Emacs Configuration</h1>
+
+<p>A number of high-quality, pre-built Emacs configurations are available
+online, including:</p>
+
+<ul>
+<li><a href="https://github.com/technomancy/emacs-starter-kit">Emacs Starter Kit</a></li>
+<li><a href="https://github.com/bbatsov/emacs-prelude">Emacs Prelude</a></li>
+<li><a href="https://github.com/bbatsov/emacs-dev-kit">Emacs Dev Kit</a></li>
+</ul>
+
+
+<p>A few Opscoders use configurations based around Emacs Starter
+Kit. However, since I have fairly simple configuration needs, I decided
+to borrow a few ideas from each and forge ahead on my own.  The result
+can be found in my
+<a href="https://github.com/stevendanna/emacs-config">emacs-config</a>
+repository.  It is still very much a work in progress.</p>
+
+<p>I've structured my new <code>.emacs.d</code> directory as follows:</p>
+
+<pre><code>.
+|-- init.el
+|-- modules/
+|-- snippets/
+|-- themes/
+`-- vendor/
+</code></pre>
+
+<ul>
+<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I've
+taken a bit of code from the README of Emacs Starter Kit that
+automatically installs packages from ELPA.</p></li>
+<li><p><code>modules/</code>: This is the heart of my emacs config.  Any <code>.el</code> files
+in this directory are automatically loaded.</p></li>
+<li><p><code>snippets/</code>: Used to store snippets for yasnippet.  Currently empty.</p></li>
+<li><p><code>themes/</code>: Color themes.</p></li>
+<li><p><code>vendor/</code>: Any 3rd party Emacs packages that are not yet distributed
+via ELPA.</p></li>
+</ul>
+
+
+<p>The auto-installation of packages is great for sharing my
+configuration between workstations; but, it can be brutally slow the
+first time you run it.</p>
+
+<h2>Highlights</h2>
+
+<p>The majority of my emacs configuration consists of minor
+customizations to popular, pre-built packages. The following are the
+packages that I use on a daily basis:</p>
+
+<ul>
+<li><p><a href="http://www.emacswiki.org/emacs/InteractivelyDoThings">ido-mode</a>: I
+ honestly don't know how I used Emacs before discovering ido-mode.</p></li>
+<li><p><a href="http://orgmode.org/">org-mode</a>: Org-mode is my go-to application
+anytime I need to take notes in a meeting, outline a new project, or
+author a simple document.</p></li>
+<li><p><a href="http://ess.r-project.org/">ess</a>: Emacs Speaks Statistics (ESS) is a
+ must-have for any user of R and Emacs. Kieran Healy has created
+ <a href="http://kieranhealy.org/packages/">a repository for ESS</a>, making
+ ESS easily installable via Emacs 24's package management features.</p></li>
+<li><p><a href="http://www.gnu.org/s/auctex/">auctex</a>: AucTeX provides a number a
+features useful to those who love LaTeX.  If you haven't fallen in
+love with LaTeX yet, I highly recommend trying it!</p></li>
+</ul>
+
+
+<p>In addition to the tried-and-true packages above and a handful of
+popular programming modes, I added the following packages to my
+standard configuration:</p>
+
+<ul>
+<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github's gists all
+the time; I can't believe I didn't look for this before.</p></li>
+<li><p><a href="http://jblevins.org/projects/deft/">Deft</a>: Deft allows you quickly
+create, edit, and view plain-text notes.  I've configured it to use
+org-mode as its default text-mode and hope to use it to easily
+collect tasks throughout the day.</p></li>
+<li><p><a href="http://www.emacswiki.org/emacs/HippieExpand">hippie-expand</a>: I
+previously used predictive-mode extensively, but eventually found it
+too slow to use productively.  So far, hippie-expand has been
+filling the auto-completion void that I've been feeling since remove
+predictive-mode.</p></li>
+</ul>
+
+
+<p>All of these packages are either shipped with Emacs or available as
+packages using the new package management features in Emacs 24.  I was
+initially skeptical of the package management features.  However, I've
+found that a large amount of the complexity in managing my previous
+configuration was the result of manually managing packages.  With this
+complexity removed, moving to Emacs 24 was relatively painless.</p>
+
+<p>I was also pleased to see improvements to clipboard integration. My
+old <code>.emacs</code> file had a number of ugly workarounds for properly
+interacting with the clipboard on multiple platforms.  I've found this
+completely unnecessary in Emacs 24.</p>
+
+<p>The only problem I encountered during this transition was finding a
+suitable color theme.  Low-contrast color themes such as zenburn seem
+to be in vogue at the moment.  I prefer higher-contrast themes.  In
+Emacs 23, I used dark-laptop, but it appears that this theme has not
+yet been ported to Emacs 24's built-in color theme support.  My
+current theme is a small color theme based heavily on dark-laptop.</p>
+
+<h2>Deploy!</h2>
+
+<p>I've deployed my new configuration to all of my workstations via a
+simple <code>git pull</code>.  My hope is that a few weeks of real-world use will
+find the rough edges that remain.  Comments and suggestions welcome!</p>
+]]></content>
+  </entry>
+  
+</feed>

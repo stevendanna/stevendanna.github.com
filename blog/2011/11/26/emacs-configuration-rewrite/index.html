@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Emacs Configuration Rewrite - Steven Danna's Blog</title>
+  <meta name="author" content="Steven Danna">
+
+  
+  <meta name="description" content="I am in the process of rebooting my GTD workflow. Since I do most of
+my work in Emacs, I decided it was also time to refactor and improve my Emacs &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Steven Danna's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Steven Danna's Blog</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:stevendanna.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Emacs Configuration Rewrite</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-26T00:00:00-08:00" pubdate data-updated="true">Nov 26<span>th</span>, 2011</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I am in the process of rebooting my GTD workflow.  Since I do most of
+my work in Emacs, I decided it was also time to refactor and improve my Emacs
+configuration.  What was wrong with my configuration?</p>
+
+<ul>
+<li>I was living in the past (Emacs 23) and wanted to live in the future
+(Emacs 24).</li>
+<li>My configuration file was not under version control.  And, because
+of the differences between Fedora and OS X, the configuration on my
+work laptop and personal laptop had drifted significantly.</li>
+<li>My <code>.emacs</code> file was poorly structured and easily broken.</li>
+</ul>
+
+
+<p>I&#8217;ve documented my work on my Emacs configuration here, mostly as a
+means of reminding my future self what I did.  Overall the experience
+was pleasant.  Emacs 24 brings many long-needed features to Emacs.</p>
+
+<p>The end result can be seen below.</p>
+
+<p><img src="/assets/emacs-desktop.png"></p>
+
+<h1>Installing Emacs 24:</h1>
+
+<p>On Fedora, I installed directly from git:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'><span class="c"># Install Dependencies</span>
+</span><span class='line'>sudo yum-builddep emacs
+</span><span class='line'>sudo yum install
+</span><span class='line'><span class="c"># Get source</span>
+</span><span class='line'><span class="nb">cd</span> ~/src
+</span><span class='line'>git clone git://git.savannah.gnu.org/emacs.git
+</span><span class='line'><span class="nb">cd </span>emacs
+</span><span class='line'><span class="c"># Install</span>
+</span><span class='line'>./autogen.sh
+</span><span class='line'>./configure
+</span><span class='line'>make
+</span><span class='line'>sudo make install
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>On my Mac, I installed Emacs 24 via Homebrew:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>brew uninstall emacs
+</span><span class='line'>brew install emacs --cocoa --use-git-head --HEAD
+</span><span class='line'>ln -s /usr/local/Cellar/emacs/HEAD/Emacs.app /Applications/
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>Rebuilding My Emacs Configuration</h1>
+
+<p>A number of high-quality, pre-built Emacs configurations are available
+online, including:</p>
+
+<ul>
+<li><a href="https://github.com/technomancy/emacs-starter-kit">Emacs Starter Kit</a></li>
+<li><a href="https://github.com/bbatsov/emacs-prelude">Emacs Prelude</a></li>
+<li><a href="https://github.com/bbatsov/emacs-dev-kit">Emacs Dev Kit</a></li>
+</ul>
+
+
+<p>A few Opscoders use configurations based around Emacs Starter
+Kit. However, since I have fairly simple configuration needs, I decided
+to borrow a few ideas from each and forge ahead on my own.  The result
+can be found in my
+<a href="https://github.com/stevendanna/emacs-config">emacs-config</a>
+repository.  It is still very much a work in progress.</p>
+
+<p>I&#8217;ve structured my new <code>.emacs.d</code> directory as follows:</p>
+
+<pre><code>.
+|-- init.el
+|-- modules/
+|-- snippets/
+|-- themes/
+`-- vendor/
+</code></pre>
+
+<ul>
+<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I&#8217;ve
+taken a bit of code from the README of Emacs Starter Kit that
+automatically installs packages from ELPA.</p></li>
+<li><p><code>modules/</code>: This is the heart of my emacs config.  Any <code>.el</code> files
+in this directory are automatically loaded.</p></li>
+<li><p><code>snippets/</code>: Used to store snippets for yasnippet.  Currently empty.</p></li>
+<li><p><code>themes/</code>: Color themes.</p></li>
+<li><p><code>vendor/</code>: Any 3rd party Emacs packages that are not yet distributed
+via ELPA.</p></li>
+</ul>
+
+
+<p>The auto-installation of packages is great for sharing my
+configuration between workstations; but, it can be brutally slow the
+first time you run it.</p>
+
+<h2>Highlights</h2>
+
+<p>The majority of my emacs configuration consists of minor
+customizations to popular, pre-built packages. The following are the
+packages that I use on a daily basis:</p>
+
+<ul>
+<li><p><a href="http://www.emacswiki.org/emacs/InteractivelyDoThings">ido-mode</a>: I
+ honestly don&#8217;t know how I used Emacs before discovering ido-mode.</p></li>
+<li><p><a href="http://orgmode.org/">org-mode</a>: Org-mode is my go-to application
+anytime I need to take notes in a meeting, outline a new project, or
+author a simple document.</p></li>
+<li><p><a href="http://ess.r-project.org/">ess</a>: Emacs Speaks Statistics (ESS) is a
+ must-have for any user of R and Emacs. Kieran Healy has created
+ <a href="http://kieranhealy.org/packages/">a repository for ESS</a>, making
+ ESS easily installable via Emacs 24&#8217;s package management features.</p></li>
+<li><p><a href="http://www.gnu.org/s/auctex/">auctex</a>: AucTeX provides a number a
+features useful to those who love LaTeX.  If you haven&#8217;t fallen in
+love with LaTeX yet, I highly recommend trying it!</p></li>
+</ul>
+
+
+<p>In addition to the tried-and-true packages above and a handful of
+popular programming modes, I added the following packages to my
+standard configuration:</p>
+
+<ul>
+<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github&#8217;s gists all
+the time; I can&#8217;t believe I didn&#8217;t look for this before.</p></li>
+<li><p><a href="http://jblevins.org/projects/deft/">Deft</a>: Deft allows you quickly
+create, edit, and view plain-text notes.  I&#8217;ve configured it to use
+org-mode as its default text-mode and hope to use it to easily
+collect tasks throughout the day.</p></li>
+<li><p><a href="http://www.emacswiki.org/emacs/HippieExpand">hippie-expand</a>: I
+previously used predictive-mode extensively, but eventually found it
+too slow to use productively.  So far, hippie-expand has been
+filling the auto-completion void that I&#8217;ve been feeling since remove
+predictive-mode.</p></li>
+</ul>
+
+
+<p>All of these packages are either shipped with Emacs or available as
+packages using the new package management features in Emacs 24.  I was
+initially skeptical of the package management features.  However, I&#8217;ve
+found that a large amount of the complexity in managing my previous
+configuration was the result of manually managing packages.  With this
+complexity removed, moving to Emacs 24 was relatively painless.</p>
+
+<p>I was also pleased to see improvements to clipboard integration. My
+old <code>.emacs</code> file had a number of ugly workarounds for properly
+interacting with the clipboard on multiple platforms.  I&#8217;ve found this
+completely unnecessary in Emacs 24.</p>
+
+<p>The only problem I encountered during this transition was finding a
+suitable color theme.  Low-contrast color themes such as zenburn seem
+to be in vogue at the moment.  I prefer higher-contrast themes.  In
+Emacs 23, I used dark-laptop, but it appears that this theme has not
+yet been ported to Emacs 24&#8217;s built-in color theme support.  My
+current theme is a small color theme based heavily on dark-laptop.</p>
+
+<h2>Deploy!</h2>
+
+<p>I&#8217;ve deployed my new configuration to all of my workstations via a
+simple <code>git pull</code>.  My hope is that a few weeks of real-world use will
+find the rough edges that remain.  Comments and suggestions welcome!</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Steven Danna</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-26T00:00:00-08:00" pubdate data-updated="true">Nov 26<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/emacs/'>emacs</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/11/06/gsd-a-small-utility-to-get-stuff-done/" title="Previous Post: gsd: A small utility to get stuff done">&laquo; gsd: A small utility to get stuff done</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/12/26/snow-and-chef/" title="Next Post: Snow and Chef">Snow and Chef &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/10/simple-tools-do-times-and-summarize/">Simple Tools: do.times and summarize</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/26/snow-and-chef/">Snow and Chef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/11/26/emacs-configuration-rewrite/">Emacs Configuration Rewrite</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/stevendanna">@stevendanna</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'stevendanna',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("SteveDanna", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Steven Danna -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'allons-y';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/';
+        var disqus_url = 'http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

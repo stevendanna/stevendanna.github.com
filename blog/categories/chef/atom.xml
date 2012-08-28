@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Chef | Steven Danna's Blog]]></title>
+  <link href="http://stevendanna.github.com/blog/categories/chef/atom.xml" rel="self"/>
+  <link href="http://stevendanna.github.com/"/>
+  <updated>2012-08-28T00:46:49-07:00</updated>
+  <id>http://stevendanna.github.com/</id>
+  <author>
+    <name><![CDATA[Steven Danna]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[R ohai plugin]]></title>
+    <link href="http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin/"/>
+    <updated>2012-01-01T15:44:00-08:00</updated>
+    <id>http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/opscode/ohai">Ohai</a> is a library used by Chef to collect information about nodes
+within your infrastructure.  Information is collected by a set of Ohai
+plugins, most of which parse the output of system commands.</p>
+
+<p>During lunch on Friday, I create a simple Ohai plugin to collect some basic
+information about R. You can find the plugin here:</p>
+
+<p>  <a href="https://github.com/stevendanna/ohai-plugins/blob/master/r.rb">https://github.com/stevendanna/ohai-plugins/blob/master/r.rb</a></p>
+
+<p>Currently, this plugin collects:</p>
+
+<ul>
+<li>The version of R,</li>
+<li>The installed packages, and</li>
+<li>The output of <code>capabilities()</code></li>
+</ul>
+
+
+<p>To use this plugin right away, the easiest course of action is to use
+the <a href="http://community.opscode.com/cookbooks/ohai">Opscode Ohai cookbook</a>.  From your chef repository:</p>
+
+<p>``` bash
+knife cookbook site install ohai
+wget https://raw.github.com/stevendanna/ohai-plugins/master/r.rb
+mv r.rb cookbooks/ohai/files/default/plugins/
+knife cookbook upload ohai</p>
+
+<h1>Add the recipe to the run list of the relevant nodes</h1>
+
+<h1>or roles</h1>
+
+<p>knife node run_list add NODENAME ohai</p>
+
+<h1>The ohai plugin will run on the next chef-client run</h1>
+
+<p>knife ssh 'name:NODENAME'
+```</p>
+
+<p>In order to avoid unnecessary runs of Ohai within a chef-client run
+you can add the following line to the <code>client.rb</code> configuration file on your nodes:</p>
+
+<p><code>ruby
+Ohai::Config[:plugin_path] &lt;&lt; '/etc/chef/ohai_plugins'
+</code></p>
+
+<p>If you are using Opscode's chef-client cookbook, this will already be
+taken care of for you.</p>
+
+<p>The following is an example of the information it collects:</p>
+
+<p>```</p>
+
+<blockquote><p>knife node show snow-master -a languages.r -Fj
+{
+  "languages.r": {</p>
+
+<pre><code>"capabilities": {
+  "tiff": true,
+  "cledit": false,
+  "tcltk": true,
+  "X11": false,
+  "sockets": true,
+  "fifo": true,
+  "iconv": true,
+  "cairo": true,
+  "png": true,
+  "http/ftp": true,
+  "libxml": true,
+  "jpeg": true,
+  "aqua": false,
+  "NLS": true,
+  "profmem": true
+},
+"packages": [
+  {
+    "name": "Rmpi",
+    "version": "0.5-9",
+    "built": "2.14.1"
+  },
+  {
+    "name": "snow",
+    "version": "0.3-8",
+    "built": "2.14.1"
+  },
+  {
+    "name": "KernSmooth",
+    "version": "2.23-7",
+    "built": "2.14.0"
+  },
+</code></pre>
+
+<p>[ ... SNIP MANY MORE PACKAGE ...]</p>
+
+<pre><code>  {
+    "name": "boot",
+    "version": "1.3-3",
+    "built": "2.14.0"
+  },
+  {
+    "name": "utils",
+    "version": "2.14.1",
+    "built": "2.14.1"
+  }
+],
+"version": "2.14.1"
+</code></pre>
+
+<p>  }
+}</p></blockquote>
+
+<p>```</p>
+
+<p>Also, Happy New Year!</p>
+]]></content>
+  </entry>
+  
+</feed>
