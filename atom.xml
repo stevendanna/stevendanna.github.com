@@ -4,7 +4,7 @@
   <title><![CDATA[Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2012-08-28T00:46:49-07:00</updated>
+  <updated>2013-04-13T14:13:58-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -12,6 +12,102 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Passwd_min Ohai Plugin]]></title>
+    <link href="http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/"/>
+    <updated>2013-04-13T13:23:00-07:00</updated>
+    <id>http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin</id>
+    <content type="html"><![CDATA[<p><a href="https://github.com/stevendanna/ohai-plugins/blob/master/plugins/passwd_min.rb">passwd_min</a>
+is an Ohai plugin that parses /etc/passwd and /etc/group and returns
+user and group information in a format that matches the passwd plugin
+shipped in Ohai.</p>
+
+<p>This plugin may be useful to Chef users who have alternate
+password databases (such as LDAP or NIS) configured and have had to
+disable the default passwd plugin to avoid storing their organizations
+entire LDAP directory in their node objects.</p>
+
+<h2>Background</h2>
+
+<p>The passwd plugin shipped in Ohai uses Ruby&#8217;s Etc module to popular
+the <code>node['etc']['passwd']</code> and <code>node['etc']['group']</code> attributes.</p>
+
+<p>If one follows the code for the Etc module far enough, she will find
+that this information is obtained by calling the getpwent() system
+call:</p>
+
+<figure class='code'><figcaption><span>ext/etc/etc.cnn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">passwd_iterate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">passwd</span> <span class="o">*</span><span class="n">pw</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">setpwent</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">pw</span> <span class="o">=</span> <span class="n">getpwent</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">rb_yield</span><span class="p">(</span><span class="n">setup_passwd</span><span class="p">(</span><span class="n">pw</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Qnil</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>According to the Linux Manual Page for getwpent():</p>
+
+<blockquote><p>The getpwent() function returns a pointer to a structure containing
+  the broken-out fields of a record from the password database (e.g.,
+  the local password file /etc/passwd, NIS, and LDAP). The first time
+  getpwent() is called, it returns the first entry; thereafter, it
+  returns successive entries.</p></blockquote>
+
+<p>Thus, for users who have have LDAP or NIS configured,
+<code>node['etc']['passwd']</code> will contain more than simply the contents of
+<code>/etc/passwd</code>.  For some users, the data the default passwd plugin
+collects will produce large node objects.  These large node objects
+place additional load on the Chef Server and other chef clients that
+have to process those objects later.</p>
+
+<h2>Using the passwd_min plugin</h2>
+
+<p>The easiest way to distribute the passwd_min plugin is via the
+<a href="http://community.opscode.com/cookbooks/ohai">Opscode Ohai cookbook</a>.  From your Chef Repository:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>knife cookbook site install ohai
+</span><span class='line'>wget https://raw.github.com/stevendanna/ohai-plugins/master/passwd_min.rb
+</span><span class='line'>mv passwd_min.rb cookbooks/ohai/files/default/plugins/
+</span><span class='line'>knife cookbook upload ohai
+</span><span class='line'><span class="c"># Add the recipe to the run list of the relevant nodes</span>
+</span><span class='line'><span class="c"># or roles</span>
+</span><span class='line'>knife node run_list add NODENAME ohai
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will also want to disable the default passwd plugin by placing the
+following in /etc/chef/client.rb on the node:</p>
+
+<pre><code> Ohai::Config[:disabled_plugins] = ["passwd"]
+</code></pre>
+
+<p>Note that if you use the Chef-client Cookbook, this can be done via an attribute.</p>
+
+<p>Bug reports and improvements happily accepted on Github.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Simple Tools: do.times and summarize]]></title>

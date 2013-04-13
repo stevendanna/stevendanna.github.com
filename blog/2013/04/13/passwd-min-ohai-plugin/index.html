@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Passwd_min Ohai Plugin - Steven Danna's Blog</title>
+  <meta name="author" content="Steven Danna">
+
+  
+  <meta name="description" content="passwd_min
+is an Ohai plugin that parses /etc/passwd and /etc/group and returns
+user and group information in a format that matches the passwd plugin &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Steven Danna's Blog" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Steven Danna's Blog</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:stevendanna.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Passwd_min Ohai Plugin</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-13T13:23:00-07:00" pubdate data-updated="true">Apr 13<span>th</span>, 2013</time>
+        
+         | <a href="#disqus_thread">Comments</a>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="https://github.com/stevendanna/ohai-plugins/blob/master/plugins/passwd_min.rb">passwd_min</a>
+is an Ohai plugin that parses /etc/passwd and /etc/group and returns
+user and group information in a format that matches the passwd plugin
+shipped in Ohai.</p>
+
+<p>This plugin may be useful to Chef users who have alternate
+password databases (such as LDAP or NIS) configured and have had to
+disable the default passwd plugin to avoid storing their organizations
+entire LDAP directory in their node objects.</p>
+
+<h2>Background</h2>
+
+<p>The passwd plugin shipped in Ohai uses Ruby&#8217;s Etc module to popular
+the <code>node['etc']['passwd']</code> and <code>node['etc']['group']</code> attributes.</p>
+
+<p>If one follows the code for the Etc module far enough, she will find
+that this information is obtained by calling the getpwent() system
+call:</p>
+
+<figure class='code'><figcaption><span>ext/etc/etc.cnn</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="n">passwd_iterate</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">passwd</span> <span class="o">*</span><span class="n">pw</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">setpwent</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="n">pw</span> <span class="o">=</span> <span class="n">getpwent</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">rb_yield</span><span class="p">(</span><span class="n">setup_passwd</span><span class="p">(</span><span class="n">pw</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Qnil</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>According to the Linux Manual Page for getwpent():</p>
+
+<blockquote><p>The getpwent() function returns a pointer to a structure containing
+  the broken-out fields of a record from the password database (e.g.,
+  the local password file /etc/passwd, NIS, and LDAP). The first time
+  getpwent() is called, it returns the first entry; thereafter, it
+  returns successive entries.</p></blockquote>
+
+<p>Thus, for users who have have LDAP or NIS configured,
+<code>node['etc']['passwd']</code> will contain more than simply the contents of
+<code>/etc/passwd</code>.  For some users, the data the default passwd plugin
+collects will produce large node objects.  These large node objects
+place additional load on the Chef Server and other chef clients that
+have to process those objects later.</p>
+
+<h2>Using the passwd_min plugin</h2>
+
+<p>The easiest way to distribute the passwd_min plugin is via the
+<a href="http://community.opscode.com/cookbooks/ohai">Opscode Ohai cookbook</a>.  From your Chef Repository:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>knife cookbook site install ohai
+</span><span class='line'>wget https://raw.github.com/stevendanna/ohai-plugins/master/passwd_min.rb
+</span><span class='line'>mv passwd_min.rb cookbooks/ohai/files/default/plugins/
+</span><span class='line'>knife cookbook upload ohai
+</span><span class='line'><span class="c"># Add the recipe to the run list of the relevant nodes</span>
+</span><span class='line'><span class="c"># or roles</span>
+</span><span class='line'>knife node run_list add NODENAME ohai
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>You will also want to disable the default passwd plugin by placing the
+following in /etc/chef/client.rb on the node:</p>
+
+<pre><code> Ohai::Config[:disabled_plugins] = ["passwd"]
+</code></pre>
+
+<p>Note that if you use the Chef-client Cookbook, this can be done via an attribute.</p>
+
+<p>Bug reports and improvements happily accepted on Github.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Steven Danna</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-04-13T13:23:00-07:00" pubdate data-updated="true">Apr 13<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/chef/'>chef</a>, <a class='category' href='/blog/categories/ohai/'>ohai</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/10/simple-tools-do-times-and-summarize/" title="Previous Post: Simple Tools: do.times and summarize">&laquo; Simple Tools: do.times and summarize</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/04/13/passwd-min-ohai-plugin/">Passwd_min Ohai Plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/10/simple-tools-do-times-and-summarize/">Simple Tools: do.times and summarize</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/26/snow-and-chef/">Snow and Chef</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/stevendanna">@stevendanna</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'stevendanna',
+            count: 5,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("SteveDanna", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Steven Danna -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'allons-y';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/';
+        var disqus_url = 'http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
