@@ -25,7 +25,7 @@ If one follows the code for the Etc module far enough, she will find
 that this information is obtained by calling the getpwent() system
 call:
 
-```c ext/etc/etc.cnn
+```c ext/etc/etc.c
 passwd_iterate(void)
 {
     struct passwd *pw;
