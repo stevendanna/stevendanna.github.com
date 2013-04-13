@@ -13,7 +13,7 @@ shipped in Ohai.
 
 This plugin may be useful to Chef users who have alternate
 password databases (such as LDAP or NIS) configured and have had to
-disable the default passwd plugin to avoid storing their organizations
+disable the default passwd plugin to avoid storing their organization's
 entire LDAP directory in their node objects.
 
 ## Background
