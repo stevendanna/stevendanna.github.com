@@ -4,7 +4,7 @@
   <title><![CDATA[Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-13T14:48:06-07:00</updated>
+  <updated>2013-04-20T12:23:59-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -12,6 +12,33 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cookbook Release: xinetd 0.9.0]]></title>
+    <link href="http://stevendanna.github.com/blog/2013/04/20/cookbook-release-xinetd-0-dot-9-0/"/>
+    <updated>2013-04-20T10:44:00-07:00</updated>
+    <id>http://stevendanna.github.com/blog/2013/04/20/cookbook-release-xinetd-0-dot-9-0</id>
+    <content type="html"><![CDATA[<p>Earlier this week I released version 0.9.0 of my
+<a href="https://github.com/stevendanna/cookbook-xinetd">xinetd cookbook</a>.
+This cookbook provides:</p>
+
+<ul>
+<li>An LWRP for managing xinetd services,</li>
+<li>Attribute driven configuration of xinetd.conf, and</li>
+<li>a recipe for enabling the internal xinetd-provided services
+(chargen, daytime, discard, echo, time, and tcpmux-server).</li>
+</ul>
+
+
+<p>This cookbook is not yet on the Opscode Community site as I am working
+with the maintainer of the currently uploaded xinetd cookbook to
+ensure we don&#8217;t break anyone using the existing cookbook.</p>
+
+<p>For more details about this cookbook, please see the <a href="https://github.com/stevendanna/cookbook-xinetd/blob/master/README.md">README</a>.  If you
+are interested in contributing to this cookbook, pull requests are
+accepted on Github.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Passwd_min Ohai Plugin]]></title>
