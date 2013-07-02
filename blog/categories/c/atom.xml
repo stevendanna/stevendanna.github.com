@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/c/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-01T23:13:22-07:00</updated>
+  <updated>2013-07-01T23:26:40-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -320,7 +320,7 @@ transport layer inspection and dropping your message.</p>
 <li><a href="http://linux.die.net/man/7/packet">packet(7) man page</a></li>
 <li><a href="http://linux.die.net/man/2/sendto">sendto(2) man page</a></li>
 <li><a href="http://linux.die.net/man/3/inet_pton">inet_pton(3) man page</a></li>
-<li><a href="http://linux.die.net/man/2/getaddrinfo">getaddrinfo(2) man page</a></li>
+<li><a href="http://linux.die.net/man/3/getaddrinfo">getaddrinfo(3) man page</a></li>
 <li><a href="https://www.rfc-editor.org/rfc/rfc791.txt">RFC 791</a></li>
 </ul>
 
