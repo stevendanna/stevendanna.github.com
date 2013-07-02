@@ -309,7 +309,7 @@ can use the swiss-army knife of socket communication, <a href="http://www.dest-u
 <pre><code>printf 'Hello, World!\0' | sudo socat - IP4-SENDTO:localhost:253
 </code></pre>
 
-<p>Using TCP dump, we can see the socat sent the same packet we did:</p>
+<p>Using TCP dump, we can see that socat sent the same packet we did:</p>
 
 <pre><code>21:16:35.729037 IP localhost &gt; localhost:  ip-proto-253 14
     0x0000:  4500 0022 0000 4000 40fd 3bdd 7f00 0001  E.."..@.@.;.....
