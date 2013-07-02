@@ -9,4 +9,4 @@ footer: true
 
 Please use the following public key for any secure communication with me.
 
-{% include_code [Public Key] [lang:sh] public.key %}
+{% include_code Public Key lang:bash public.key %}
