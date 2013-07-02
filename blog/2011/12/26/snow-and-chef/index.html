@@ -106,7 +106,7 @@ suitable for use with R.  As part of this project, I wrote:</p>
 
 
 <p>This blog post outlines some of the highlights of this fun little
-project. It isn&#8217;t a step-by-step tutorial for creating such
+project. It isn&rsquo;t a step-by-step tutorial for creating such
 an environment.  I assume that already have:</p>
 
 <ul>
@@ -125,7 +125,7 @@ resolvable hostname.</p>
 <h1>R Cookbook</h1>
 
 <p>The first item every node in the cluster will need is R.  The R
-cookbook on the Opscode Community site is a bit out of date.  I&#8217;ve
+cookbook on the Opscode Community site is a bit out of date.  I&rsquo;ve
 created a newer version that can be found here:</p>
 
 <p><a href="http://github.com/stevendanna/cookbook-r">http://github.com/stevendanna/cookbook-r</a></p>
@@ -147,11 +147,11 @@ Ubuntu or Debian.</p>
 
 <h2>R Package Provider</h2>
 
-<p>My R parallel computing environment relies on the &#8216;snow&#8217; and &#8216;Rmpi&#8217;
+<p>My R parallel computing environment relies on the &lsquo;snow&rsquo; and &lsquo;Rmpi&rsquo;
 packages to manage communication with computation nodes.  Further, I
 often need additional packages from CRAN when working with my cluster.
 The R package provider in my R cookbook allows for easy, automated
-installation of R packages.  It was written using Chef&#8217;s Light-weight
+installation of R packages.  It was written using Chef&rsquo;s Light-weight
 Resource and Provider DSL.  The current version provides the minimal
 necessary functionality:</p>
 
@@ -240,8 +240,8 @@ would like to add include:</p>
 
 
 <p>Despite these shortcomings, the current provider works well enough for
-my purposes and is a good example of Chef&#8217;s high-level of
-&#8216;Whip-It-Up-itude.&#8217;  Within a few minutes, I was able to go from some
+my purposes and is a good example of Chef&rsquo;s high-level of
+&lsquo;Whip-It-Up-itude.&rsquo;  Within a few minutes, I was able to go from some
 quick-and-dirty R code to a Chef provider that I can iteratively
 improve as my needs become more complex.  While I did not include it
 in the repository linked above, I was able to create a small <code>R::snow</code>
@@ -266,14 +266,14 @@ recipe that does little more than use this provider:</p>
 
 <h1>MPI Cookbook</h1>
 
-<p>The R package &#8216;snow&#8217; can use various backends to communicate with
-computation nodes.  The default method for most commands is &#8220;Message
-Passing Interface&#8221; (MPI).  MPI is also generally useful outside of R
+<p>The R package &lsquo;snow&rsquo; can use various backends to communicate with
+computation nodes.  The default method for most commands is &ldquo;Message
+Passing Interface&rdquo; (MPI).  MPI is also generally useful outside of R
 as you can easily use MPI utilities such as mpirun to execute a
-command on multiple computation nodes and use MPI&#8217;s C libraries to
+command on multiple computation nodes and use MPI&rsquo;s C libraries to
 write programs designed for parallel computation.</p>
 
-<p>MPI has multiple implementation.  I&#8217;ve written an MPI cookbook that
+<p>MPI has multiple implementation.  I&rsquo;ve written an MPI cookbook that
 can install <a href="http://www.open-mpi.org/">openmpi</a> on Ubuntu.  It can be found here:</p>
 
 <p><a href="https://github.com/stevendanna/cookbook-mpi">https://github.com/stevendanna/cookbook-mpi</a></p>
@@ -291,7 +291,7 @@ commands such as mpirun.</li>
 
 <p>While MPI does not natively contain the concepts of master and slaves
 (every MPI node can talk to any other MPI node), I found it useful to
-include the concept of a node&#8217;s &#8220;MPI role.&#8221;  I use this role to
+include the concept of a node&rsquo;s &ldquo;MPI role.&rdquo;  I use this role to
 populate the default hostfile, since there are often cases where you
 might want MPI installed on a machine within your environment but
 would not want that machine being used for computation.</p>
@@ -401,7 +401,7 @@ using snow, consider the following Chistmas-themed R function.</p>
 
 
 <p>Assuming chef-client has been run on all of our nodes, we can simply
-log into our &#8216;snow master&#8217;, boot up R, and run the following code:</p>
+log into our &lsquo;snow master&rsquo;, boot up R, and run the following code:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -553,7 +553,7 @@ when installing package from within R.</li>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" data-via="" data-counturl="http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/" >Tweet</a>
   
   
   
@@ -586,6 +586,10 @@ when installing package from within R.</li>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/06/23/a-short-sock-raw-adventure/">A Short SOCK_RAW Adventure</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/20/cookbook-release-xinetd-0-dot-9-0/">Cookbook Release: xinetd 0.9.0</a>
       </li>
     
@@ -599,10 +603,6 @@ when installing package from within R.</li>
     
       <li class="post">
         <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
       </li>
     
   </ul>
@@ -635,23 +635,6 @@ when installing package from within R.</li>
     });
   </script>
   <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("SteveDanna", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
-  
 </section>
 
 

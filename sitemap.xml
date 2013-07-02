@@ -12,7 +12,7 @@
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/</loc>
@@ -20,11 +20,11 @@
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
     </url>
     <url>
         <loc>
@@ -34,7 +34,7 @@
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
     </url>
     <url>
         <loc>
@@ -43,8 +43,12 @@
         <lastmod>2013-04-20T12:21:04-07:00</lastmod>
     </url>
     <url>
+        <loc>http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure/</loc>
+        <lastmod>2013-07-01T23:09:17-07:00</lastmod>
+    </url>
+    <url>
         <loc>http://stevendanna.github.com/blog/archives/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-07-01T23:09:17-07:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/downloads/code/public.key</loc>
@@ -52,11 +56,11 @@
     </url>
     <url>
         <loc>http://stevendanna.github.com/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-07-01T23:09:17-07:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/public-key/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2013-06-23T19:01:41-07:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/public.key</loc>

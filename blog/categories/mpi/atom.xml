@@ -4,7 +4,7 @@
   <title><![CDATA[Category: mpi | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/mpi/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -32,7 +32,7 @@ suitable for use with R.  As part of this project, I wrote:</p>
 
 
 <p>This blog post outlines some of the highlights of this fun little
-project. It isn't a step-by-step tutorial for creating such
+project. It isn&rsquo;t a step-by-step tutorial for creating such
 an environment.  I assume that already have:</p>
 
 <ul>
@@ -51,7 +51,7 @@ resolvable hostname.</p>
 <h1>R Cookbook</h1>
 
 <p>The first item every node in the cluster will need is R.  The R
-cookbook on the Opscode Community site is a bit out of date.  I've
+cookbook on the Opscode Community site is a bit out of date.  I&rsquo;ve
 created a newer version that can be found here:</p>
 
 <p><a href="http://github.com/stevendanna/cookbook-r">http://github.com/stevendanna/cookbook-r</a></p>
@@ -73,17 +73,17 @@ Ubuntu or Debian.</p>
 
 <h2>R Package Provider</h2>
 
-<p>My R parallel computing environment relies on the 'snow' and 'Rmpi'
+<p>My R parallel computing environment relies on the &lsquo;snow&rsquo; and &lsquo;Rmpi&rsquo;
 packages to manage communication with computation nodes.  Further, I
 often need additional packages from CRAN when working with my cluster.
 The R package provider in my R cookbook allows for easy, automated
-installation of R packages.  It was written using Chef's Light-weight
+installation of R packages.  It was written using Chef&rsquo;s Light-weight
 Resource and Provider DSL.  The current version provides the minimal
 necessary functionality:</p>
 
-<p>``` ruby "R package provider.  Corresponding resource description not shown."
+<p>``` ruby &ldquo;R package provider.  Corresponding resource description not shown.&rdquo;
 action :install do
-  execute "Install R Package" do</p>
+  execute &ldquo;Install R Package&rdquo; do</p>
 
 <pre><code>command r_package_install(new_resource.package)
 not_if r_package_is_installed(new_resource.package)
@@ -93,7 +93,7 @@ not_if r_package_is_installed(new_resource.package)
 end</p>
 
 <p>action :upgrade do
-  execute "Upgrade R Package" do</p>
+  execute &ldquo;Upgrade R Package&rdquo; do</p>
 
 <pre><code>command r_package_install(new_resource.package)
 </code></pre>
@@ -102,8 +102,8 @@ end</p>
 end</p>
 
 <p>action :remove do
-  r_package_remove = "remove.packages('#{new_resource.package}')"
-  execute "Remove R Package" do</p>
+  r_package_remove = &ldquo;remove.packages(&lsquo;#{new_resource.package}&rsquo;)&rdquo;
+  execute &ldquo;Remove R Package&rdquo; do</p>
 
 <pre><code>command "echo \"#{r_package_remove}\" | R --no-save --no-restore -q"
 only_if r_package_is_installed(new_resource.package)
@@ -119,13 +119,13 @@ end</p>
 <h1>statements</h1>
 
 <p>def r_package_is_installed(package_name)
-  r_code = "if (any(installed.packages()[,1] == '#{package_name}')) { quit('no', 0, FALSE) }; quit('no', 1, FALSE)"
-  "echo \"#{r_code}\" | R --no-save --no-restore -q"
+  r_code = &ldquo;if (any(installed.packages()[,1] == &lsquo;#{package_name}&rsquo;)) { quit(&lsquo;no&rsquo;, 0, FALSE) }; quit(&lsquo;no&rsquo;, 1, FALSE)&rdquo;
+  &ldquo;echo \&rdquo;#{r_code}\&ldquo; | R &mdash;no-save &mdash;no-restore -q&rdquo;
 end</p>
 
 <p>def r_package_install(package_name)
-  r_code = "install.packages('#{package_name}')"
-  "echo \"#{r_code}\" | R --no-save --no-restore -q"
+  r_code = &ldquo;install.packages(&lsquo;#{package_name}&rsquo;)&rdquo;
+  &ldquo;echo \&rdquo;#{r_code}\&ldquo; | R &mdash;no-save &mdash;no-restore -q&rdquo;
 end
 ```</p>
 
@@ -141,33 +141,33 @@ would like to add include:</p>
 
 
 <p>Despite these shortcomings, the current provider works well enough for
-my purposes and is a good example of Chef's high-level of
-'Whip-It-Up-itude.'  Within a few minutes, I was able to go from some
+my purposes and is a good example of Chef&rsquo;s high-level of
+&lsquo;Whip-It-Up-itude.&rsquo;  Within a few minutes, I was able to go from some
 quick-and-dirty R code to a Chef provider that I can iteratively
 improve as my needs become more complex.  While I did not include it
 in the repository linked above, I was able to create a small <code>R::snow</code>
 recipe that does little more than use this provider:</p>
 
 <p>``` ruby
-R_package "snow"</p>
+R_package &ldquo;snow&rdquo;</p>
 
-<p>case node['R']['snow']['cluster_type']
-when 'mpi'
-  include_recipe 'mpi'
-  R_package 'Rmpi'
+<p>case node[&lsquo;R&rsquo;][&lsquo;snow&rsquo;][&lsquo;cluster_type&rsquo;]
+when &lsquo;mpi&rsquo;
+  include_recipe &lsquo;mpi&rsquo;
+  R_package &lsquo;Rmpi&rsquo;
 end
 ```</p>
 
 <h1>MPI Cookbook</h1>
 
-<p>The R package 'snow' can use various backends to communicate with
-computation nodes.  The default method for most commands is "Message
-Passing Interface" (MPI).  MPI is also generally useful outside of R
+<p>The R package &lsquo;snow&rsquo; can use various backends to communicate with
+computation nodes.  The default method for most commands is &ldquo;Message
+Passing Interface&rdquo; (MPI).  MPI is also generally useful outside of R
 as you can easily use MPI utilities such as mpirun to execute a
-command on multiple computation nodes and use MPI's C libraries to
+command on multiple computation nodes and use MPI&rsquo;s C libraries to
 write programs designed for parallel computation.</p>
 
-<p>MPI has multiple implementation.  I've written an MPI cookbook that
+<p>MPI has multiple implementation.  I&rsquo;ve written an MPI cookbook that
 can install <a href="http://www.open-mpi.org/">openmpi</a> on Ubuntu.  It can be found here:</p>
 
 <p><a href="https://github.com/stevendanna/cookbook-mpi">https://github.com/stevendanna/cookbook-mpi</a></p>
@@ -185,7 +185,7 @@ commands such as mpirun.</li>
 
 <p>While MPI does not natively contain the concepts of master and slaves
 (every MPI node can talk to any other MPI node), I found it useful to
-include the concept of a node's "MPI role."  I use this role to
+include the concept of a node&rsquo;s &ldquo;MPI role.&rdquo;  I use this role to
 populate the default hostfile, since there are often cases where you
 might want MPI installed on a machine within your environment but
 would not want that machine being used for computation.</p>
@@ -237,9 +237,9 @@ site and helps make ssh connections between the nodes a bit smoother.</p>
 using snow, consider the following Chistmas-themed R function.</p>
 
 <p>``` r
-twelve_days_of_christmas &lt;- function (n) {
-  if (!any(1:12 == n)) stop("Not a day of Chirstmas!")
-  LYRICS &lt;- c("a Partridge in a Pear Tree.",</p>
+twelve_days_of_christmas &lt;&ndash; function (n) {
+  if (!any(1:12 == n)) stop(&ldquo;Not a day of Chirstmas!&rdquo;)
+  LYRICS &lt;&ndash; c(&ldquo;a Partridge in a Pear Tree.&rdquo;,</p>
 
 <pre><code>          "Two Turtle Doves",
           "Three French Hens",
@@ -254,9 +254,9 @@ twelve_days_of_christmas &lt;- function (n) {
           "Twleve Drummers Drumming")
 </code></pre>
 
-<p>  append = c("st", "nd", "rd", rep("th",9))
-  if (n > 1) LYRICS[1] = paste("and", LYRICS[1])
-  paste("On the",</p>
+<p>  append = c(&ldquo;st&rdquo;, &ldquo;nd&rdquo;, &ldquo;rd&rdquo;, rep(&ldquo;th&rdquo;,9))
+  if (n > 1) LYRICS[1] = paste(&ldquo;and&rdquo;, LYRICS[1])
+  paste(&ldquo;On the&rdquo;,</p>
 
 <pre><code>    paste(n, append[n], sep=""),
     "day of Christmas, my true love gave to me",
@@ -267,49 +267,49 @@ twelve_days_of_christmas &lt;- function (n) {
 ```</p>
 
 <p>Assuming chef-client has been run on all of our nodes, we can simply
-log into our 'snow master', boot up R, and run the following code:</p>
+log into our &lsquo;snow master&rsquo;, boot up R, and run the following code:</p>
 
 <p>``` r</p>
 
-<blockquote><p>library('snow')
-source('twelve_days.r')
-cl &lt;- makeCluster(2)
+<blockquote><p>library(&lsquo;snow&rsquo;)
+source(&lsquo;twelve_days.r&rsquo;)
+cl &lt;&ndash; makeCluster(2)
 clusterApply(cl, 1:12, twelve_days_of_christmas)
 [[1]]
-[1] "On the 1st day of Christmas, my true love gave to me a Partridge in a Pear Tree."</p></blockquote>
+[1] &ldquo;On the 1st day of Christmas, my true love gave to me a Partridge in a Pear Tree.&rdquo;</p></blockquote>
 
 <p>[[2]]
-[1] "On the 2nd day of Christmas, my true love gave to me Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 2nd day of Christmas, my true love gave to me Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[3]]
-[1] "On the 3rd day of Christmas, my true love gave to me Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 3rd day of Christmas, my true love gave to me Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[4]]
-[1] "On the 4th day of Christmas, my true love gave to me Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 4th day of Christmas, my true love gave to me Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[5]]
-[1] "On the 5th day of Christmas, my true love gave to me Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 5th day of Christmas, my true love gave to me Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[6]]
-[1] "On the 6th day of Christmas, my true love gave to me Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 6th day of Christmas, my true love gave to me Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[7]]
-[1] "On the 7th day of Christmas, my true love gave to me Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 7th day of Christmas, my true love gave to me Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[8]]
-[1] "On the 8th day of Christmas, my true love gave to me Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 8th day of Christmas, my true love gave to me Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[9]]
-[1] "On the 9th day of Christmas, my true love gave to me Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 9th day of Christmas, my true love gave to me Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[10]]
-[1] "On the 10th day of Christmas, my true love gave to me Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 10th day of Christmas, my true love gave to me Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[11]]
-[1] "On the 11th day of Christmas, my true love gave to me Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."</p>
+[1] &ldquo;On the 11th day of Christmas, my true love gave to me Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;</p>
 
 <p>[[12]]
-[1] "On the 12th day of Christmas, my true love gave to me Twleve Drummers Drumming, Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree."
+[1] &ldquo;On the 12th day of Christmas, my true love gave to me Twleve Drummers Drumming, Eleven Pipers Piping, Ten Lords-a-Leaping, Nine Ladies Dancing, Eight Maids-a-Milking, Seven Swans-a-Swimming, Six Geese-a-Laying, Five Goldedn Rings, Four Colly Birds, Three French Hens, Two Turtle Doves, and a Partridge in a Pear Tree.&rdquo;
 ```</p>
 
 <h1>Conclusion</h1>

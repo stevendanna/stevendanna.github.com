@@ -4,7 +4,7 @@
   <title><![CDATA[Category: shell | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/shell/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -34,7 +34,7 @@ easily compose simple unix tools to complete complex task.</p>
 <p>My own <code>~/bin</code> contains similar higher-order functions and other
 simple tools.  Like most unix tools, they do a single task and are
 composable with other tools on the command line.  However, I am often
-surprised by the number of heavy command-line users I see who don't
+surprised by the number of heavy command-line users I see who don&rsquo;t
 regularly encapsulate repetitive tasks or constructions into shell
 functions or aliases.</p>
 
@@ -78,7 +78,7 @@ working on before sending them off to collaborators.</p>
 
 <p>Here is an example of its output:
 ```
-$ summarize --sep="," --header data_file</p>
+$ summarize &mdash;sep=&ldquo;,&rdquo; &mdash;header data_file</p>
 
 <pre><code>wombats            frogs
 </code></pre>
@@ -118,7 +118,7 @@ frogs   0.006553818 0.074872790</p>
 6 0.65910419 0.3053271
 ```</p>
 
-<p>While it doesn't seem like much, these basic statistics are often all
+<p>While it doesn&rsquo;t seem like much, these basic statistics are often all
 one needs to ensure they are sending the correct data to a teammate or
 to quickly answer a basic question.</p>
 
@@ -135,11 +135,11 @@ anyone who has used R.</p>
 make some not-so-simple tools I use on a regular basis a bit
 faster. Combining <code>do.times</code> and <code>summarize</code> allowed me to quickly
 generate a smoke test for whether the speed improvements I was
-implementing were working.  To protect the innocent, I'll use <code>git
+implementing were working.  To protect the innocent, I&rsquo;ll use <code>git
 --version</code> as an example of the command I wanted to test:</p>
 
 <p>```
-$ do.times 100 time git --version 2>&amp;1 | awk '/real/ {print substr($2,3,5)}' | summarize</p>
+$ do.times 100 time git &mdash;version 2>&amp;1 | awk &lsquo;/real/ {print substr($2,3,5)}&rsquo; | summarize</p>
 
 <pre><code>   V1
 </code></pre>
@@ -178,7 +178,7 @@ $ do.times 100 time git --version 2>&amp;1 | awk '/real/ {print substr($2,3,5)}'
 6 0.001
 ```</p>
 
-<p>While this isn't scientific testing by any means, it was enough to
+<p>While this isn&rsquo;t scientific testing by any means, it was enough to
 keep me moving in the right direction, and simple enough that the cost
 of creating and running the test was practically zero.</p>
 ]]></content>

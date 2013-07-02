@@ -4,7 +4,7 @@
   <title><![CDATA[Category: emacs | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/emacs/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -32,7 +32,7 @@ work laptop and personal laptop had drifted significantly.</li>
 </ul>
 
 
-<p>I've documented my work on my Emacs configuration here, mostly as a
+<p>I&rsquo;ve documented my work on my Emacs configuration here, mostly as a
 means of reminding my future self what I did.  Overall the experience
 was pleasant.  Emacs 24 brings many long-needed features to Emacs.</p>
 
@@ -90,7 +90,7 @@ can be found in my
 <a href="https://github.com/stevendanna/emacs-config">emacs-config</a>
 repository.  It is still very much a work in progress.</p>
 
-<p>I've structured my new <code>.emacs.d</code> directory as follows:</p>
+<p>I&rsquo;ve structured my new <code>.emacs.d</code> directory as follows:</p>
 
 <pre><code>.
 |-- init.el
@@ -101,7 +101,7 @@ repository.  It is still very much a work in progress.</p>
 </code></pre>
 
 <ul>
-<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I've
+<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I&rsquo;ve
 taken a bit of code from the README of Emacs Starter Kit that
 automatically installs packages from ELPA.</p></li>
 <li><p><code>modules/</code>: This is the heart of my emacs config.  Any <code>.el</code> files
@@ -125,16 +125,16 @@ packages that I use on a daily basis:</p>
 
 <ul>
 <li><p><a href="http://www.emacswiki.org/emacs/InteractivelyDoThings">ido-mode</a>: I
- honestly don't know how I used Emacs before discovering ido-mode.</p></li>
+ honestly don&rsquo;t know how I used Emacs before discovering ido-mode.</p></li>
 <li><p><a href="http://orgmode.org/">org-mode</a>: Org-mode is my go-to application
 anytime I need to take notes in a meeting, outline a new project, or
 author a simple document.</p></li>
 <li><p><a href="http://ess.r-project.org/">ess</a>: Emacs Speaks Statistics (ESS) is a
  must-have for any user of R and Emacs. Kieran Healy has created
  <a href="http://kieranhealy.org/packages/">a repository for ESS</a>, making
- ESS easily installable via Emacs 24's package management features.</p></li>
+ ESS easily installable via Emacs 24&rsquo;s package management features.</p></li>
 <li><p><a href="http://www.gnu.org/s/auctex/">auctex</a>: AucTeX provides a number a
-features useful to those who love LaTeX.  If you haven't fallen in
+features useful to those who love LaTeX.  If you haven&rsquo;t fallen in
 love with LaTeX yet, I highly recommend trying it!</p></li>
 </ul>
 
@@ -144,42 +144,42 @@ popular programming modes, I added the following packages to my
 standard configuration:</p>
 
 <ul>
-<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github's gists all
-the time; I can't believe I didn't look for this before.</p></li>
+<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github&rsquo;s gists all
+the time; I can&rsquo;t believe I didn&rsquo;t look for this before.</p></li>
 <li><p><a href="http://jblevins.org/projects/deft/">Deft</a>: Deft allows you quickly
-create, edit, and view plain-text notes.  I've configured it to use
+create, edit, and view plain-text notes.  I&rsquo;ve configured it to use
 org-mode as its default text-mode and hope to use it to easily
 collect tasks throughout the day.</p></li>
 <li><p><a href="http://www.emacswiki.org/emacs/HippieExpand">hippie-expand</a>: I
 previously used predictive-mode extensively, but eventually found it
 too slow to use productively.  So far, hippie-expand has been
-filling the auto-completion void that I've been feeling since remove
+filling the auto-completion void that I&rsquo;ve been feeling since remove
 predictive-mode.</p></li>
 </ul>
 
 
 <p>All of these packages are either shipped with Emacs or available as
 packages using the new package management features in Emacs 24.  I was
-initially skeptical of the package management features.  However, I've
+initially skeptical of the package management features.  However, I&rsquo;ve
 found that a large amount of the complexity in managing my previous
 configuration was the result of manually managing packages.  With this
 complexity removed, moving to Emacs 24 was relatively painless.</p>
 
 <p>I was also pleased to see improvements to clipboard integration. My
 old <code>.emacs</code> file had a number of ugly workarounds for properly
-interacting with the clipboard on multiple platforms.  I've found this
+interacting with the clipboard on multiple platforms.  I&rsquo;ve found this
 completely unnecessary in Emacs 24.</p>
 
 <p>The only problem I encountered during this transition was finding a
 suitable color theme.  Low-contrast color themes such as zenburn seem
 to be in vogue at the moment.  I prefer higher-contrast themes.  In
 Emacs 23, I used dark-laptop, but it appears that this theme has not
-yet been ported to Emacs 24's built-in color theme support.  My
+yet been ported to Emacs 24&rsquo;s built-in color theme support.  My
 current theme is a small color theme based heavily on dark-laptop.</p>
 
 <h2>Deploy!</h2>
 
-<p>I've deployed my new configuration to all of my workstations via a
+<p>I&rsquo;ve deployed my new configuration to all of my workstations via a
 simple <code>git pull</code>.  My hope is that a few weeks of real-world use will
 find the rough edges that remain.  Comments and suggestions welcome!</p>
 ]]></content>

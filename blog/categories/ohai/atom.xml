@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ohai | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/ohai/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -25,12 +25,12 @@ shipped in Ohai.</p>
 
 <p>This plugin may be useful to Chef users who have alternate
 password databases (such as LDAP or NIS) configured and have had to
-disable the default passwd plugin to avoid storing their organization's
+disable the default passwd plugin to avoid storing their organization&rsquo;s
 entire LDAP directory in their node objects.</p>
 
 <h2>Background</h2>
 
-<p>The passwd plugin shipped in Ohai uses Ruby's Etc module to popular
+<p>The passwd plugin shipped in Ohai uses Ruby&rsquo;s Etc module to popular
 the <code>node['etc']['passwd']</code> and <code>node['etc']['group']</code> attributes.</p>
 
 <p>If one follows the code for the Etc module far enough, she will find
@@ -75,7 +75,7 @@ have to process those objects later.</p>
 
 <p>```bash
 knife cookbook site install ohai
-wget https://raw.github.com/stevendanna/ohai-plugins/master/passwd_min.rb
+wget <a href="https://raw.github.com/stevendanna/ohai-plugins/master/passwd_min.rb">https://raw.github.com/stevendanna/ohai-plugins/master/passwd_min.rb</a>
 mv passwd_min.rb cookbooks/ohai/files/default/plugins/
 knife cookbook upload ohai</p>
 

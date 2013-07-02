@@ -9,7 +9,7 @@
   <meta name="author" content="Steven Danna">
 
   
-  <meta name="description" content="Recently, I&#8217;ve used Shef,
+  <meta name="description" content="Recently, I&rsquo;ve used Shef,
 the interactive Chef console, to get to the bottom of some rather
 tricky problems. In the process, I developed a &hellip;">
   
@@ -92,16 +92,16 @@ tricky problems. In the process, I developed a &hellip;">
   </header>
 
 
-<div class="entry-content"><p>Recently, I&#8217;ve used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
+<div class="entry-content"><p>Recently, I&rsquo;ve used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
 the interactive Chef console, to get to the bottom of some rather
 tricky problems.  In the process, I developed a number of tricks and
 tools for productively debugging problems using Shef.  This is the first
-in a series of articles I&#8217;d like to write on the most useful of these
+in a series of articles I&rsquo;d like to write on the most useful of these
 tips.</p>
 
 <p>In this article I will discuss how I use Shef and a handful of
 additional functions to debug Chef-client runs by stepping through a
-node&#8217;s run list, breaking before or after specific resources in order
+node&rsquo;s run list, breaking before or after specific resources in order
 to inspect the state of the system.  Note that this is not intended
 to be an introduction to Shef.  For that, you should head over to the
 <a href="http://wiki.opscode.com/display/chef/Getting+Started+with+Shef">Chef Wiki</a>.</p>
@@ -109,7 +109,7 @@ to be an introduction to Shef.  For that, you should head over to the
 <h1>Setup</h1>
 
 <p>Some of the functions I mention in this article are in the <code>shef/</code>
-directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you&#8217;d like to use them,
+directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you&rsquo;d like to use them,
 you can download this repository from Github:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -145,7 +145,7 @@ file.</p>
 support for recipe and attribute syntax and a number of Chef-relevant
 functions.</p>
 
-<p>Here&#8217;s a typical Shef session that you might find in an introduction
+<p>Here&rsquo;s a typical Shef session that you might find in an introduction
 to Shef.  We add some resources, including a <em>breakpoint</em> resource and
 start a chef-run.</p>
 
@@ -192,7 +192,7 @@ here to being able to step through an actual chef-client run.  To
 effectively step through a chef-client run, we need to be able to:</p>
 
 <ul>
-<li>Load resources from the recipes in the node&#8217;s run_list, and</li>
+<li>Load resources from the recipes in the node&rsquo;s run_list, and</li>
 <li>Insert breakpoints between the loaded resources.</li>
 </ul>
 
@@ -203,11 +203,11 @@ tasks.</p>
 <h2>Loading Resources from the RunList</h2>
 
 <p>Invoking Shef with the <code>-z</code> argument enables client-mode, forcing it to
-download the relevant recipes from the node&#8217;s run_list just as
+download the relevant recipes from the node&rsquo;s run_list just as
 chef-client would, but it does not processes these recipes and add
 their resources to the resource collection.</p>
 
-<p>Because Shef&#8217;s recipe context allows you to use the recipe DSL, we can
+<p>Because Shef&rsquo;s recipe context allows you to use the recipe DSL, we can
 add the resources from an individual recipe using the <code>include_recipe</code>
 function.  We can only use <code>include_recipe</code> on recipes that Shef
 downloaded when we started it up.</p>
@@ -246,7 +246,7 @@ encounter an error as you try to include the recipes. In a future
 article, I may discuss better ways to step through this compilation
 phase.</p>
 
-<p>Since I&#8217;d rather not type the above every time I want to debug a
+<p>Since I&rsquo;d rather not type the above every time I want to debug a
 chef-client run, I encapsulated this into a function within my
 ShefExtras library: <a href="https://github.com/stevendanna/knife-hacks/blob/master/shef/extras.rb#L11"><code>load_node_run_list</code></a>.</p>
 
@@ -259,19 +259,19 @@ resource that exhibiting some errant behavior.To do this, we need a
 way to insert breakpoints between the resources we are loading from
 recipes.</p>
 
-<p>Since &#8220;breakpoint&#8221; is a fully-fledged Chef resource, we could place
+<p>Since &ldquo;breakpoint&rdquo; is a fully-fledged Chef resource, we could place
 the breakpoint resources directly in the relevant recipe. Within a
 normal chef-client run, the breakpoint resources will have no effect,
 allowing us to do this without much fear of endangering other
 nodes using the same recipe.</p>
 
-<p>However, I&#8217;ve found that it is more useful to be able to add the
+<p>However, I&rsquo;ve found that it is more useful to be able to add the
 breakpoints via Shef, since we will often want to add new breakpoints
 as we gain new information.</p>
 
-<p>To accomplish this, I&#8217;ve created an <code>insert_break</code> function to do just
+<p>To accomplish this, I&rsquo;ve created an <code>insert_break</code> function to do just
 that within my ShefExtras library.  Since it is a bit uglier than I
-would like and depends on mucking about in the depths of Chef&#8217;s data
+would like and depends on mucking about in the depths of Chef&rsquo;s data
 structures, I am not going to walk through how the function works.
 However, here is an example of how to use it:</p>
 
@@ -294,7 +294,7 @@ However, here is an example of how to use it:</p>
 
 
 <ul>
-<li>Next, we load the resources from the recipe in the node&#8217;s run list
+<li>Next, we load the resources from the recipe in the node&rsquo;s run list
 and insert a break point before one of them.</li>
 </ul>
 
@@ -348,12 +348,12 @@ state that we believe may be having an effect on the template
 resource. When we are ready to continue, we can call <code>chef_run.resume</code>
 to continue the run.</p>
 
-<p>In this example, I&#8217;ve used three custom functions from the ShefExtras
+<p>In this example, I&rsquo;ve used three custom functions from the ShefExtras
 module:</p>
 
 <ul>
 <li><p><code>load_node_run_list</code> loads the resources from the
-node&#8217;s run list in the same way as we did in the previous section.</p></li>
+node&rsquo;s run list in the same way as we did in the previous section.</p></li>
 <li><p><code>ordered_resources</code> returns a list of the resources in the order that
 chef-client would run them.</p></li>
 <li><p><code>insert_break(preposition, resource)</code> will place a break resource
@@ -370,8 +370,8 @@ useful in the following types of situations:</p>
 <li>The run list contains recipes which are heavily dependent on execute
 or script resources that may not be behaving as you expect.</li>
 <li>A recipe makes significant run time modifications of node attributes.</li>
-<li>A recipe&#8217;s behavior non-trivially branches based on pieces of the
-system&#8217;s state that is not easily observed before or after the
+<li>A recipe&rsquo;s behavior non-trivially branches based on pieces of the
+system&rsquo;s state that is not easily observed before or after the
 chef-client run has completed.</li>
 </ul>
 
@@ -429,7 +429,7 @@ system has proven incredibly valuable.</p>
     
       <div class="sharing">
   
-  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" data-via="SteveDanna" data-counturl="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" >Tweet</a>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" data-via="" data-counturl="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/" >Tweet</a>
   
   
   
@@ -462,6 +462,10 @@ system has proven incredibly valuable.</p>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/06/23/a-short-sock-raw-adventure/">A Short SOCK_RAW Adventure</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/04/20/cookbook-release-xinetd-0-dot-9-0/">Cookbook Release: xinetd 0.9.0</a>
       </li>
     
@@ -475,10 +479,6 @@ system has proven incredibly valuable.</p>
     
       <li class="post">
         <a href="/blog/2012/01/28/shef-debugging-tips-1/">Shef Tips and Tricks: Stepping Through Chef-client Runs with Shef</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2012/01/01/r-ohai-plugin/">R ohai plugin</a>
       </li>
     
   </ul>
@@ -511,23 +511,6 @@ system has proven incredibly valuable.</p>
     });
   </script>
   <script src="/javascripts/github.js" type="text/javascript"> </script>
-</section>
-
-
-<section>
-  <h1>Latest Tweets</h1>
-  <ul id="tweets">
-    <li class="loading">Status updating...</li>
-  </ul>
-  <script type="text/javascript">
-    $.domReady(function(){
-      getTwitterFeed("SteveDanna", 4, false);
-    });
-  </script>
-  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
-  
-    <a href="http://twitter.com/SteveDanna" class="twitter-follow-button" data-show-count="false">Follow @SteveDanna</a>
-  
 </section>
 
 

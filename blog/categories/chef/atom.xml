@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Chef | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/chef/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -41,7 +41,7 @@ the <a href="http://community.opscode.com/cookbooks/ohai">Opscode Ohai cookbook<
 
 <p>``` bash
 knife cookbook site install ohai
-wget https://raw.github.com/stevendanna/ohai-plugins/master/r.rb
+wget <a href="https://raw.github.com/stevendanna/ohai-plugins/master/r.rb">https://raw.github.com/stevendanna/ohai-plugins/master/r.rb</a>
 mv r.rb cookbooks/ohai/files/default/plugins/
 knife cookbook upload ohai</p>
 
@@ -53,7 +53,7 @@ knife cookbook upload ohai</p>
 
 <h1>The ohai plugin will run on the next chef-client run</h1>
 
-<p>knife ssh 'name:NODENAME'
+<p>knife ssh &lsquo;name:NODENAME&rsquo;
 ```</p>
 
 <p>In order to avoid unnecessary runs of Ohai within a chef-client run
@@ -63,7 +63,7 @@ you can add the following line to the <code>client.rb</code> configuration file 
 Ohai::Config[:plugin_path] &lt;&lt; '/etc/chef/ohai_plugins'
 </code></p>
 
-<p>If you are using Opscode's chef-client cookbook, this will already be
+<p>If you are using Opscode&rsquo;s chef-client cookbook, this will already be
 taken care of for you.</p>
 
 <p>The following is an example of the information it collects:</p>
@@ -72,7 +72,7 @@ taken care of for you.</p>
 
 <blockquote><p>knife node show snow-master -a languages.r -Fj
 {
-  "languages.r": {</p>
+  &ldquo;languages.r&rdquo;: {</p>
 
 <pre><code>"capabilities": {
   "tiff": true,
@@ -109,7 +109,7 @@ taken care of for you.</p>
   },
 </code></pre>
 
-<p>[ ... SNIP MANY MORE PACKAGE ...]</p>
+<p>[ &hellip; SNIP MANY MORE PACKAGE &hellip;]</p>
 
 <pre><code>  {
     "name": "boot",

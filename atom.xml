@@ -4,7 +4,7 @@
   <title><![CDATA[Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-04-20T12:23:59-07:00</updated>
+  <updated>2013-07-01T23:13:22-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -12,6 +12,353 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[A Short SOCK_RAW Adventure]]></title>
+    <link href="http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure/"/>
+    <updated>2013-06-23T18:55:00-07:00</updated>
+    <id>http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure</id>
+    <content type="html"><![CDATA[<p>Last week a colleague and I were talking about custom network
+protocols.  As I haven&rsquo;t done much networking programming in Linux, it
+piqued my curiosity about how hard it is to send data using IP but not
+one of the common transport protocols (TCP or UDP). Since I&rsquo;m
+currently on a plane without wifi, I&rsquo;ve written up some of my notes on
+this short bout of manpage surfing.</p>
+
+<p>I quickly found that the <a href="http://linux.die.net/man/7/raw">raw(7)</a> manual page has
+documentation on just what I was looking for:</p>
+
+<blockquote><p>Raw sockets allow new IPv4 protocols to be implemented in user
+  space. A raw socket receives or sends the raw datagram not including
+  link level headers.</p></blockquote>
+
+<p>The following is a minimal example that sends a single message, &ldquo;Hello
+World!\0&rdquo;, to localhost using the Internet Protocol and a raw <code>AF_INET</code>
+socket:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;sys/socket.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;arpa/inet.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">sd</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">sockaddr_in</span> <span class="n">dest</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">msg</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&quot;Hello, World!&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">dest</span><span class="p">.</span><span class="n">sin_family</span> <span class="o">=</span> <span class="n">AF_INET</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">inet_pton</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="s">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">dest</span><span class="p">.</span><span class="n">sin_addr</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Bad Address!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">((</span><span class="n">sd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">SOCK_RAW</span><span class="p">,</span> <span class="mi">253</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">printf</span><span class="p">(</span><span class="s">&quot;socket() failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>      <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">sendto</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">msg</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">dest</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">sockaddr</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;sendto() failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>inet_pton(), socket(), sendto()</h1>
+
+<p>This short program can be broken into three parts:</p>
+
+<ol>
+<li>Specifying our destination,</li>
+<li>Creating a socket, and</li>
+<li>Sending a message over the socket.</li>
+</ol>
+
+
+<p>The key system calls used to complete these tasks are <code>inet_pton</code>,
+<code>socket()</code> and <code>sendto()</code>, respectively.</p>
+
+<h2>inet_pton()</h2>
+
+<p>Our destination is stored in a <code>sockaddr_in</code> structure that has the
+following definition (from <a href="http://linux.die.net/man/7/ip">ip(7)</a>):</p>
+
+<pre><code>struct sockaddr_in {
+     sa_family_t    sin_family; /* address family: AF_INET */
+     in_port_t      sin_port;   /* port in network byte order */
+     struct in_addr sin_addr;   /* internet address */
+};
+</code></pre>
+
+<p>In our example, <code>sin_family</code> will be AF_INET as we are using IPv4.
+Since port is a concept used by transport layer protocols such as UDP
+and TCP and not used by IP, we&rsquo;ll ignore the port in this case.
+Finally, the <code>sin_addr</code> field is the destination address in network
+byte order.</p>
+
+<p>Rather than figuring out how to turn a human-readable destination such
+as &ldquo;127.0.0.1&rdquo; into its network byte-order representation, we use
+<a href="http://linux.die.net/man/3/inet_pton">inet_pton</a> to do the dirty work for us:</p>
+
+<pre><code>inet_pton(AF_INET, "127.0.0.1", &amp;(dest.sin_addr))
+</code></pre>
+
+<h2>socket()</h2>
+
+<p>The <a href="http://linux.die.net/man/2/socket">socket</a> system call has the following signature:</p>
+
+<pre><code>socket(int domain, int type, int protocol)
+</code></pre>
+
+<p>In this case, we want an <code>AF_INET</code> socket of type <code>SOCK_RAW</code>.  In the
+context of an AF_INET socket, the protocol fields specifies which
+protocol will be used on top of IP.  Since we don&rsquo;t want to use a
+protocol on top of IP, I&rsquo;ve used protocol 253 which RFC 3692 reserves
+for experimental and testing purposes.</p>
+
+<p>This will return a file descriptor that we can pass to sendto().</p>
+
+<h2>sendto()</h2>
+
+<p>Finally, we use sendto() to send the desired message.  <a href="http://linux.die.net/man/2/sendto">sendto</a> has the following
+signature:</p>
+
+<pre><code>sendto(int sockfd, const void *buf, size_t len, int flags,
+       const struct sockaddr *dest_addr, socklen_t addrlen);
+</code></pre>
+
+<p>In the above example</p>
+
+<p><code>sockfd</code> is <code>sd</code>, the socket created by line 17, <code>*buf</code> is the
+message defined at line 9 and <code>len</code> is its length. Flags is set to 0
+as we don&rsquo;t need special flags this case.</p>
+
+<p><code>*dest_addr</code> is our destination specified as a <code>sockadd_in</code>
+structure.  This contains the destination address we packed into it
+using <code>inet_pton</code>.</p>
+
+<h1>Verification with TCP Dump</h1>
+
+<p>If we compile and run this program, we can capture the incoming
+packet and verify that we didn&rsquo;t send anything but our IP header and
+the payload &ldquo;Hello, World!\0&rdquo;.</p>
+
+<pre><code>$ gcc -Wall send_msg.c
+$ bash -c 'sleep 10; sudo ./a.out'
+$ sudo tcpdump -i lo -X
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes
+
+20:46:26.470243 IP localhost &gt; localhost:  ip-proto-253 14
+        0x0000:  4500 0022 0000 4000 40fd 3bdd 7f00 0001  E.."..@.@.;.....
+        0x0010:  7f00 0001 4865 6c6c 6f2c 2057 6f72 6c64  ....Hello,.World
+        0x0020:  2100                                     !.
+</code></pre>
+
+<p>In hex our payload is:</p>
+
+<pre><code>$ printf 'Hello, World!\0' | hexdump
+0000000 6548 6c6c 2c6f 5720 726f 646c 0021
+</code></pre>
+
+<p>which we can see at the end of the packet.  Assuming that our packet
+starts with the IP header,
+<a href="https://www.rfc-editor.org/rfc/rfc791.txt">RFC 791</a> specifies that
+the first 4 bits is the versions field and the second four bits is the
+&ldquo;Internet Header Length&rdquo;.  Here, we can see the version field is set
+to 4 and the IHL is 5. According to the RFC</p>
+
+<blockquote><p>Internet Header Length is the length of the internet header in 32
+  bit words, and thus points to the beginning of the data.</p></blockquote>
+
+<p>Five 32-bit words is 160 bits.  160 bits is 40 hexadecimal digits.
+That accounts for the rest of the packet we receive, confirming that
+the packet we sent is nothing more than an IP header and our desired
+payload.</p>
+
+<h1>Verification with Socat</h1>
+
+<p>If we wanted to see our payload via something other than tcpdump we
+can use the swiss-army knife of socket communication, <a href="http://www.dest-unreach.org/socat/"><code>socat</code></a>:</p>
+
+<p>In one shell:</p>
+
+<pre><code>sudo socat IP4-RECVFROM:253 -
+</code></pre>
+
+<p>In another:</p>
+
+<pre><code>sudo ./a.out
+</code></pre>
+
+<p>Back in our original shell we should see:</p>
+
+<pre><code>Hello, World!
+</code></pre>
+
+<p>In fact, we can use socat to send the same payload using only IPv4:</p>
+
+<pre><code>printf 'Hello, World!\0' | sudo socat - IP4-SENDTO:localhost:253
+</code></pre>
+
+<p>Using TCP dump, we can see the socat sent the same packet we did:</p>
+
+<pre><code>21:16:35.729037 IP localhost &gt; localhost:  ip-proto-253 14
+    0x0000:  4500 0022 0000 4000 40fd 3bdd 7f00 0001  E.."..@.@.;.....
+    0x0010:  7f00 0001 4865 6c6c 6f2c 2057 6f72 6c64  ....Hello,.World
+    0x0020:  2100                                     !.
+</code></pre>
+
+<h1>Further Exploration and Notes</h1>
+
+<h2>Digging Deeper</h2>
+
+<p>If we wanted to dig deeper, Linux provides a couple of ways to dig
+even deeper into the network stack from userspace:</p>
+
+<ul>
+<li><p>Using <code>setsockopt()</code> we can set the <code>IP_HDRINCL</code> option.  When this
+option is set, we can provide our own IP header information for each
+message we want to send.</p></li>
+<li><p>Using an AF_PACKET it is possible to send packets at the device
+driver level. See <a href="http://linux.die.net/man/7/packet">packet(7)</a> for
+more details.</p></li>
+</ul>
+
+
+<h2>IPv6</h2>
+
+<p>Using the <code>getaddrinfo()</code> function we can support both IPv4 and IPv6
+addresses. A short, un-elaborated example is below.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='c'><span class='line'><span class="cp">#include &lt;sys/socket.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;sys/types.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;netinet/in.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;netdb.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;string.h&gt;</span>
+</span><span class='line'><span class="cp">#include &lt;stdio.h&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">sd</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="n">hints</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="n">addrinfo</span> <span class="o">*</span><span class="n">res</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">argc</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;usage: send_msg IP MSG</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">addrinfo</span><span class="p">));</span>
+</span><span class='line'>  <span class="n">hints</span><span class="p">.</span><span class="n">ai_family</span> <span class="o">=</span> <span class="n">AF_UNSPEC</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">hints</span><span class="p">.</span><span class="n">ai_socktype</span> <span class="o">=</span> <span class="n">SOCK_RAW</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">hints</span><span class="p">.</span><span class="n">ai_protocol</span> <span class="o">=</span> <span class="mi">253</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">NULL</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hints</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">res</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;getaddrinfo() failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">((</span><span class="n">sd</span> <span class="o">=</span> <span class="n">socket</span><span class="p">(</span><span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_family</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_socktype</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_protocol</span><span class="p">))</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;socket() failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">sendto</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">strlen</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addr</span><span class="p">,</span> <span class="n">res</span><span class="o">-&gt;</span><span class="n">ai_addrlen</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">&quot;sendto() failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>The real Internet</h2>
+
+<p>If you try most of the small examples here with two hosts on a real
+network, you may find that you message doesn&rsquo;t reach its destination.
+Much of the network equipment it has to traverse is likely doing
+transport layer inspection and dropping your message.</p>
+
+<h2>References</h2>
+
+<ul>
+<li><a href="http://linux.die.net/man/7/raw">raw(7) man page</a></li>
+<li><a href="http://linux.die.net/man/7/ip">ip(7) man page</a></li>
+<li><a href="http://linux.die.net/man/7/socket">socket(7) man page</a></li>
+<li><a href="http://linux.die.net/man/7/packet">packet(7) man page</a></li>
+<li><a href="http://linux.die.net/man/2/sendto">sendto(2) man page</a></li>
+<li><a href="http://linux.die.net/man/3/inet_pton">inet_pton(3) man page</a></li>
+<li><a href="http://linux.die.net/man/2/getaddrinfo">getaddrinfo(2) man page</a></li>
+<li><a href="https://www.rfc-editor.org/rfc/rfc791.txt">RFC 791</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Cookbook Release: xinetd 0.9.0]]></title>
@@ -32,7 +379,7 @@ This cookbook provides:</p>
 
 <p>This cookbook is not yet on the Opscode Community site as I am working
 with the maintainer of the currently uploaded xinetd cookbook to
-ensure we don&#8217;t break anyone using the existing cookbook.</p>
+ensure we don&rsquo;t break anyone using the existing cookbook.</p>
 
 <p>For more details about this cookbook, please see the <a href="https://github.com/stevendanna/cookbook-xinetd/blob/master/README.md">README</a>.  If you
 are interested in contributing to this cookbook, pull requests are
@@ -52,12 +399,12 @@ shipped in Ohai.</p>
 
 <p>This plugin may be useful to Chef users who have alternate
 password databases (such as LDAP or NIS) configured and have had to
-disable the default passwd plugin to avoid storing their organization&#8217;s
+disable the default passwd plugin to avoid storing their organization&rsquo;s
 entire LDAP directory in their node objects.</p>
 
 <h2>Background</h2>
 
-<p>The passwd plugin shipped in Ohai uses Ruby&#8217;s Etc module to popular
+<p>The passwd plugin shipped in Ohai uses Ruby&rsquo;s Etc module to popular
 the <code>node['etc']['passwd']</code> and <code>node['etc']['group']</code> attributes.</p>
 
 <p>If one follows the code for the Etc module far enough, she will find
@@ -157,7 +504,7 @@ easily compose simple unix tools to complete complex task.</p>
 <p>My own <code>~/bin</code> contains similar higher-order functions and other
 simple tools.  Like most unix tools, they do a single task and are
 composable with other tools on the command line.  However, I am often
-surprised by the number of heavy command-line users I see who don&#8217;t
+surprised by the number of heavy command-line users I see who don&rsquo;t
 regularly encapsulate repetitive tasks or constructions into shell
 functions or aliases.</p>
 
@@ -266,7 +613,7 @@ working on before sending them off to collaborators.</p>
 </span><span class='line'>6 0.65910419 0.3053271</span></code></pre></td></tr></table></div></figure>
 
 
-<p>While it doesn&#8217;t seem like much, these basic statistics are often all
+<p>While it doesn&rsquo;t seem like much, these basic statistics are often all
 one needs to ensure they are sending the correct data to a teammate or
 to quickly answer a basic question.</p>
 
@@ -283,7 +630,7 @@ anyone who has used R.</p>
 make some not-so-simple tools I use on a regular basis a bit
 faster. Combining <code>do.times</code> and <code>summarize</code> allowed me to quickly
 generate a smoke test for whether the speed improvements I was
-implementing were working.  To protect the innocent, I&#8217;ll use <code>git
+implementing were working.  To protect the innocent, I&rsquo;ll use <code>git
 --version</code> as an example of the command I wanted to test:</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -344,7 +691,7 @@ implementing were working.  To protect the innocent, I&#8217;ll use <code>git
 </span><span class='line'>6 0.001</span></code></pre></td></tr></table></div></figure>
 
 
-<p>While this isn&#8217;t scientific testing by any means, it was enough to
+<p>While this isn&rsquo;t scientific testing by any means, it was enough to
 keep me moving in the right direction, and simple enough that the cost
 of creating and running the test was practically zero.</p>
 ]]></content>
@@ -355,16 +702,16 @@ of creating and running the test was practically zero.</p>
     <link href="http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/"/>
     <updated>2012-01-28T15:13:00-08:00</updated>
     <id>http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1</id>
-    <content type="html"><![CDATA[<p>Recently, I&#8217;ve used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
+    <content type="html"><![CDATA[<p>Recently, I&rsquo;ve used <a href="http://wiki.opscode.com/display/chef/Shef">Shef</a>,
 the interactive Chef console, to get to the bottom of some rather
 tricky problems.  In the process, I developed a number of tricks and
 tools for productively debugging problems using Shef.  This is the first
-in a series of articles I&#8217;d like to write on the most useful of these
+in a series of articles I&rsquo;d like to write on the most useful of these
 tips.</p>
 
 <p>In this article I will discuss how I use Shef and a handful of
 additional functions to debug Chef-client runs by stepping through a
-node&#8217;s run list, breaking before or after specific resources in order
+node&rsquo;s run list, breaking before or after specific resources in order
 to inspect the state of the system.  Note that this is not intended
 to be an introduction to Shef.  For that, you should head over to the
 <a href="http://wiki.opscode.com/display/chef/Getting+Started+with+Shef">Chef Wiki</a>.</p>
@@ -372,7 +719,7 @@ to be an introduction to Shef.  For that, you should head over to the
 <h1>Setup</h1>
 
 <p>Some of the functions I mention in this article are in the <code>shef/</code>
-directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you&#8217;d like to use them,
+directory of my <a href="https://github.com/stevendanna/knife-hacks">knife-hacks</a> repository.  If you&rsquo;d like to use them,
 you can download this repository from Github:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -408,7 +755,7 @@ file.</p>
 support for recipe and attribute syntax and a number of Chef-relevant
 functions.</p>
 
-<p>Here&#8217;s a typical Shef session that you might find in an introduction
+<p>Here&rsquo;s a typical Shef session that you might find in an introduction
 to Shef.  We add some resources, including a <em>breakpoint</em> resource and
 start a chef-run.</p>
 
@@ -455,7 +802,7 @@ here to being able to step through an actual chef-client run.  To
 effectively step through a chef-client run, we need to be able to:</p>
 
 <ul>
-<li>Load resources from the recipes in the node&#8217;s run_list, and</li>
+<li>Load resources from the recipes in the node&rsquo;s run_list, and</li>
 <li>Insert breakpoints between the loaded resources.</li>
 </ul>
 
@@ -466,11 +813,11 @@ tasks.</p>
 <h2>Loading Resources from the RunList</h2>
 
 <p>Invoking Shef with the <code>-z</code> argument enables client-mode, forcing it to
-download the relevant recipes from the node&#8217;s run_list just as
+download the relevant recipes from the node&rsquo;s run_list just as
 chef-client would, but it does not processes these recipes and add
 their resources to the resource collection.</p>
 
-<p>Because Shef&#8217;s recipe context allows you to use the recipe DSL, we can
+<p>Because Shef&rsquo;s recipe context allows you to use the recipe DSL, we can
 add the resources from an individual recipe using the <code>include_recipe</code>
 function.  We can only use <code>include_recipe</code> on recipes that Shef
 downloaded when we started it up.</p>
@@ -509,7 +856,7 @@ encounter an error as you try to include the recipes. In a future
 article, I may discuss better ways to step through this compilation
 phase.</p>
 
-<p>Since I&#8217;d rather not type the above every time I want to debug a
+<p>Since I&rsquo;d rather not type the above every time I want to debug a
 chef-client run, I encapsulated this into a function within my
 ShefExtras library: <a href="https://github.com/stevendanna/knife-hacks/blob/master/shef/extras.rb#L11"><code>load_node_run_list</code></a>.</p>
 
@@ -522,19 +869,19 @@ resource that exhibiting some errant behavior.To do this, we need a
 way to insert breakpoints between the resources we are loading from
 recipes.</p>
 
-<p>Since &#8220;breakpoint&#8221; is a fully-fledged Chef resource, we could place
+<p>Since &ldquo;breakpoint&rdquo; is a fully-fledged Chef resource, we could place
 the breakpoint resources directly in the relevant recipe. Within a
 normal chef-client run, the breakpoint resources will have no effect,
 allowing us to do this without much fear of endangering other
 nodes using the same recipe.</p>
 
-<p>However, I&#8217;ve found that it is more useful to be able to add the
+<p>However, I&rsquo;ve found that it is more useful to be able to add the
 breakpoints via Shef, since we will often want to add new breakpoints
 as we gain new information.</p>
 
-<p>To accomplish this, I&#8217;ve created an <code>insert_break</code> function to do just
+<p>To accomplish this, I&rsquo;ve created an <code>insert_break</code> function to do just
 that within my ShefExtras library.  Since it is a bit uglier than I
-would like and depends on mucking about in the depths of Chef&#8217;s data
+would like and depends on mucking about in the depths of Chef&rsquo;s data
 structures, I am not going to walk through how the function works.
 However, here is an example of how to use it:</p>
 
@@ -557,7 +904,7 @@ However, here is an example of how to use it:</p>
 
 
 <ul>
-<li>Next, we load the resources from the recipe in the node&#8217;s run list
+<li>Next, we load the resources from the recipe in the node&rsquo;s run list
 and insert a break point before one of them.</li>
 </ul>
 
@@ -611,12 +958,12 @@ state that we believe may be having an effect on the template
 resource. When we are ready to continue, we can call <code>chef_run.resume</code>
 to continue the run.</p>
 
-<p>In this example, I&#8217;ve used three custom functions from the ShefExtras
+<p>In this example, I&rsquo;ve used three custom functions from the ShefExtras
 module:</p>
 
 <ul>
 <li><p><code>load_node_run_list</code> loads the resources from the
-node&#8217;s run list in the same way as we did in the previous section.</p></li>
+node&rsquo;s run list in the same way as we did in the previous section.</p></li>
 <li><p><code>ordered_resources</code> returns a list of the resources in the order that
 chef-client would run them.</p></li>
 <li><p><code>insert_break(preposition, resource)</code> will place a break resource
@@ -633,8 +980,8 @@ useful in the following types of situations:</p>
 <li>The run list contains recipes which are heavily dependent on execute
 or script resources that may not be behaving as you expect.</li>
 <li>A recipe makes significant run time modifications of node attributes.</li>
-<li>A recipe&#8217;s behavior non-trivially branches based on pieces of the
-system&#8217;s state that is not easily observed before or after the
+<li>A recipe&rsquo;s behavior non-trivially branches based on pieces of the
+system&rsquo;s state that is not easily observed before or after the
 chef-client run has completed.</li>
 </ul>
 
@@ -714,7 +1061,7 @@ you can add the following line to the <code>client.rb</code> configuration file 
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>If you are using Opscode&#8217;s chef-client cookbook, this will already be
+<p>If you are using Opscode&rsquo;s chef-client cookbook, this will already be
 taken care of for you.</p>
 
 <p>The following is an example of the information it collects:</p>
@@ -847,7 +1194,7 @@ suitable for use with R.  As part of this project, I wrote:</p>
 
 
 <p>This blog post outlines some of the highlights of this fun little
-project. It isn&#8217;t a step-by-step tutorial for creating such
+project. It isn&rsquo;t a step-by-step tutorial for creating such
 an environment.  I assume that already have:</p>
 
 <ul>
@@ -866,7 +1213,7 @@ resolvable hostname.</p>
 <h1>R Cookbook</h1>
 
 <p>The first item every node in the cluster will need is R.  The R
-cookbook on the Opscode Community site is a bit out of date.  I&#8217;ve
+cookbook on the Opscode Community site is a bit out of date.  I&rsquo;ve
 created a newer version that can be found here:</p>
 
 <p><a href="http://github.com/stevendanna/cookbook-r">http://github.com/stevendanna/cookbook-r</a></p>
@@ -888,11 +1235,11 @@ Ubuntu or Debian.</p>
 
 <h2>R Package Provider</h2>
 
-<p>My R parallel computing environment relies on the &#8216;snow&#8217; and &#8216;Rmpi&#8217;
+<p>My R parallel computing environment relies on the &lsquo;snow&rsquo; and &lsquo;Rmpi&rsquo;
 packages to manage communication with computation nodes.  Further, I
 often need additional packages from CRAN when working with my cluster.
 The R package provider in my R cookbook allows for easy, automated
-installation of R packages.  It was written using Chef&#8217;s Light-weight
+installation of R packages.  It was written using Chef&rsquo;s Light-weight
 Resource and Provider DSL.  The current version provides the minimal
 necessary functionality:</p>
 
@@ -981,8 +1328,8 @@ would like to add include:</p>
 
 
 <p>Despite these shortcomings, the current provider works well enough for
-my purposes and is a good example of Chef&#8217;s high-level of
-&#8216;Whip-It-Up-itude.&#8217;  Within a few minutes, I was able to go from some
+my purposes and is a good example of Chef&rsquo;s high-level of
+&lsquo;Whip-It-Up-itude.&rsquo;  Within a few minutes, I was able to go from some
 quick-and-dirty R code to a Chef provider that I can iteratively
 improve as my needs become more complex.  While I did not include it
 in the repository linked above, I was able to create a small <code>R::snow</code>
@@ -1007,14 +1354,14 @@ recipe that does little more than use this provider:</p>
 
 <h1>MPI Cookbook</h1>
 
-<p>The R package &#8216;snow&#8217; can use various backends to communicate with
-computation nodes.  The default method for most commands is &#8220;Message
-Passing Interface&#8221; (MPI).  MPI is also generally useful outside of R
+<p>The R package &lsquo;snow&rsquo; can use various backends to communicate with
+computation nodes.  The default method for most commands is &ldquo;Message
+Passing Interface&rdquo; (MPI).  MPI is also generally useful outside of R
 as you can easily use MPI utilities such as mpirun to execute a
-command on multiple computation nodes and use MPI&#8217;s C libraries to
+command on multiple computation nodes and use MPI&rsquo;s C libraries to
 write programs designed for parallel computation.</p>
 
-<p>MPI has multiple implementation.  I&#8217;ve written an MPI cookbook that
+<p>MPI has multiple implementation.  I&rsquo;ve written an MPI cookbook that
 can install <a href="http://www.open-mpi.org/">openmpi</a> on Ubuntu.  It can be found here:</p>
 
 <p><a href="https://github.com/stevendanna/cookbook-mpi">https://github.com/stevendanna/cookbook-mpi</a></p>
@@ -1032,7 +1379,7 @@ commands such as mpirun.</li>
 
 <p>While MPI does not natively contain the concepts of master and slaves
 (every MPI node can talk to any other MPI node), I found it useful to
-include the concept of a node&#8217;s &#8220;MPI role.&#8221;  I use this role to
+include the concept of a node&rsquo;s &ldquo;MPI role.&rdquo;  I use this role to
 populate the default hostfile, since there are often cases where you
 might want MPI installed on a machine within your environment but
 would not want that machine being used for computation.</p>
@@ -1142,7 +1489,7 @@ using snow, consider the following Chistmas-themed R function.</p>
 
 
 <p>Assuming chef-client has been run on all of our nodes, we can simply
-log into our &#8216;snow master&#8217;, boot up R, and run the following code:</p>
+log into our &lsquo;snow master&rsquo;, boot up R, and run the following code:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -1280,7 +1627,7 @@ work laptop and personal laptop had drifted significantly.</li>
 </ul>
 
 
-<p>I&#8217;ve documented my work on my Emacs configuration here, mostly as a
+<p>I&rsquo;ve documented my work on my Emacs configuration here, mostly as a
 means of reminding my future self what I did.  Overall the experience
 was pleasant.  Emacs 24 brings many long-needed features to Emacs.</p>
 
@@ -1349,7 +1696,7 @@ can be found in my
 <a href="https://github.com/stevendanna/emacs-config">emacs-config</a>
 repository.  It is still very much a work in progress.</p>
 
-<p>I&#8217;ve structured my new <code>.emacs.d</code> directory as follows:</p>
+<p>I&rsquo;ve structured my new <code>.emacs.d</code> directory as follows:</p>
 
 <pre><code>.
 |-- init.el
@@ -1360,7 +1707,7 @@ repository.  It is still very much a work in progress.</p>
 </code></pre>
 
 <ul>
-<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I&#8217;ve
+<li><p><code>init.el</code>: The main entry point of the Emacs configuration.  I&rsquo;ve
 taken a bit of code from the README of Emacs Starter Kit that
 automatically installs packages from ELPA.</p></li>
 <li><p><code>modules/</code>: This is the heart of my emacs config.  Any <code>.el</code> files
@@ -1384,16 +1731,16 @@ packages that I use on a daily basis:</p>
 
 <ul>
 <li><p><a href="http://www.emacswiki.org/emacs/InteractivelyDoThings">ido-mode</a>: I
- honestly don&#8217;t know how I used Emacs before discovering ido-mode.</p></li>
+ honestly don&rsquo;t know how I used Emacs before discovering ido-mode.</p></li>
 <li><p><a href="http://orgmode.org/">org-mode</a>: Org-mode is my go-to application
 anytime I need to take notes in a meeting, outline a new project, or
 author a simple document.</p></li>
 <li><p><a href="http://ess.r-project.org/">ess</a>: Emacs Speaks Statistics (ESS) is a
  must-have for any user of R and Emacs. Kieran Healy has created
  <a href="http://kieranhealy.org/packages/">a repository for ESS</a>, making
- ESS easily installable via Emacs 24&#8217;s package management features.</p></li>
+ ESS easily installable via Emacs 24&rsquo;s package management features.</p></li>
 <li><p><a href="http://www.gnu.org/s/auctex/">auctex</a>: AucTeX provides a number a
-features useful to those who love LaTeX.  If you haven&#8217;t fallen in
+features useful to those who love LaTeX.  If you haven&rsquo;t fallen in
 love with LaTeX yet, I highly recommend trying it!</p></li>
 </ul>
 
@@ -1403,42 +1750,42 @@ popular programming modes, I added the following packages to my
 standard configuration:</p>
 
 <ul>
-<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github&#8217;s gists all
-the time; I can&#8217;t believe I didn&#8217;t look for this before.</p></li>
+<li><p><a href="https://github.com/defunkt/gist.el">Gist</a>: I use Github&rsquo;s gists all
+the time; I can&rsquo;t believe I didn&rsquo;t look for this before.</p></li>
 <li><p><a href="http://jblevins.org/projects/deft/">Deft</a>: Deft allows you quickly
-create, edit, and view plain-text notes.  I&#8217;ve configured it to use
+create, edit, and view plain-text notes.  I&rsquo;ve configured it to use
 org-mode as its default text-mode and hope to use it to easily
 collect tasks throughout the day.</p></li>
 <li><p><a href="http://www.emacswiki.org/emacs/HippieExpand">hippie-expand</a>: I
 previously used predictive-mode extensively, but eventually found it
 too slow to use productively.  So far, hippie-expand has been
-filling the auto-completion void that I&#8217;ve been feeling since remove
+filling the auto-completion void that I&rsquo;ve been feeling since remove
 predictive-mode.</p></li>
 </ul>
 
 
 <p>All of these packages are either shipped with Emacs or available as
 packages using the new package management features in Emacs 24.  I was
-initially skeptical of the package management features.  However, I&#8217;ve
+initially skeptical of the package management features.  However, I&rsquo;ve
 found that a large amount of the complexity in managing my previous
 configuration was the result of manually managing packages.  With this
 complexity removed, moving to Emacs 24 was relatively painless.</p>
 
 <p>I was also pleased to see improvements to clipboard integration. My
 old <code>.emacs</code> file had a number of ugly workarounds for properly
-interacting with the clipboard on multiple platforms.  I&#8217;ve found this
+interacting with the clipboard on multiple platforms.  I&rsquo;ve found this
 completely unnecessary in Emacs 24.</p>
 
 <p>The only problem I encountered during this transition was finding a
 suitable color theme.  Low-contrast color themes such as zenburn seem
 to be in vogue at the moment.  I prefer higher-contrast themes.  In
 Emacs 23, I used dark-laptop, but it appears that this theme has not
-yet been ported to Emacs 24&#8217;s built-in color theme support.  My
+yet been ported to Emacs 24&rsquo;s built-in color theme support.  My
 current theme is a small color theme based heavily on dark-laptop.</p>
 
 <h2>Deploy!</h2>
 
-<p>I&#8217;ve deployed my new configuration to all of my workstations via a
+<p>I&rsquo;ve deployed my new configuration to all of my workstations via a
 simple <code>git pull</code>.  My hope is that a few weeks of real-world use will
 find the rough edges that remain.  Comments and suggestions welcome!</p>
 ]]></content>
@@ -1449,7 +1796,7 @@ find the rough edges that remain.  Comments and suggestions welcome!</p>
     <link href="http://stevendanna.github.com/blog/2011/11/06/gsd-a-small-utility-to-get-stuff-done/"/>
     <updated>2011-11-06T09:48:00-08:00</updated>
     <id>http://stevendanna.github.com/blog/2011/11/06/gsd-a-small-utility-to-get-stuff-done</id>
-    <content type="html"><![CDATA[<p>In preparation for moving more of my personal laptop&#8217;s setup into git
+    <content type="html"><![CDATA[<p>In preparation for moving more of my personal laptop&rsquo;s setup into git
 and Chef, I spent a few minutes this morning taking stock of what I
 had floating around my home folder on my personal laptop.</p>
 
@@ -1484,7 +1831,7 @@ being distracted by them:</p>
 </code></pre>
 
 <p>With a bit of searching, one can find a number of these types of
-scripts online.  My favorite that I&#8217;ve come across so far is <a href="https://github.com/leftnode/get-shit-done">Get Shit Done</a>, which works on
+scripts online.  My favorite that I&rsquo;ve come across so far is <a href="https://github.com/leftnode/get-shit-done">Get Shit Done</a>, which works on
 Windows and includes some logic to restart your systems networking
 services.</p>
 ]]></content>
@@ -1502,7 +1849,7 @@ include:</p>
 <ul>
 <li>Linux and Unix systems administration</li>
 <li>Technical writing</li>
-<li>Programming projects I&#8217;m working on in my free time</li>
+<li>Programming projects I&rsquo;m working on in my free time</li>
 <li>Free software</li>
 <li>Chef and Opscode</li>
 <li>Running</li>
