@@ -4,7 +4,7 @@
   <title><![CDATA[Category: networking | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/networking/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-01T23:26:40-07:00</updated>
+  <updated>2013-07-02T06:50:06-07:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -180,7 +180,7 @@ listening on lo, link-type EN10MB (Ethernet), capture size 65535 bytes
 <p>which we can see at the end of the packet.  Assuming that our packet
 starts with the IP header,
 <a href="https://www.rfc-editor.org/rfc/rfc791.txt">RFC 791</a> specifies that
-the first 4 bits is the versions field and the second four bits is the
+the first 4 bits is the version field and the second four bits is the
 &ldquo;Internet Header Length&rdquo;.  Here, we can see the version field is set
 to 4 and the IHL is 5. According to the RFC</p>
 
@@ -188,7 +188,7 @@ to 4 and the IHL is 5. According to the RFC</p>
   bit words, and thus points to the beginning of the data.</p></blockquote>
 
 <p>Five 32-bit words is 160 bits.  160 bits is 40 hexadecimal digits.
-That accounts for the rest of the packet we receive, confirming that
+That accounts for the rest of the packet we received, confirming that
 the packet we sent is nothing more than an IP header and our desired
 payload.</p>
 
