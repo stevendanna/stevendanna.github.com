@@ -146,7 +146,7 @@ In hex our payload is:
 which we can see at the end of the packet.  Assuming that our packet
 starts with the IP header,
 [RFC 791](https://www.rfc-editor.org/rfc/rfc791.txt) specifies that
-the first 4 bits is the versions field and the second four bits is the
+the first 4 bits is the version field and the second four bits is the
 "Internet Header Length".  Here, we can see the version field is set
 to 4 and the IHL is 5. According to the RFC
 
@@ -154,7 +154,7 @@ to 4 and the IHL is 5. According to the RFC
   bit words, and thus points to the beginning of the data.
 
 Five 32-bit words is 160 bits.  160 bits is 40 hexadecimal digits.
-That accounts for the rest of the packet we receive, confirming that
+That accounts for the rest of the packet we received, confirming that
 the packet we sent is nothing more than an IP header and our desired
 payload.
 
