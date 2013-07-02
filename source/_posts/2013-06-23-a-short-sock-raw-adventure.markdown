@@ -260,5 +260,5 @@ transport layer inspection and dropping your message.
 - [packet(7) man page](http://linux.die.net/man/7/packet)
 - [sendto(2) man page](http://linux.die.net/man/2/sendto)
 - [inet_pton(3) man page](http://linux.die.net/man/3/inet_pton)
-- [getaddrinfo(2) man page](http://linux.die.net/man/2/getaddrinfo)
+- [getaddrinfo(3) man page](http://linux.die.net/man/3/getaddrinfo)
 - [RFC 791](https://www.rfc-editor.org/rfc/rfc791.txt)
