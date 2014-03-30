@@ -179,7 +179,7 @@ In fact, we can use socat to send the same payload using only IPv4:
 
     printf 'Hello, World!\0' | sudo socat - IP4-SENDTO:localhost:253
 
-Using TCP dump, we can see the socat sent the same packet we did:
+Using TCP dump, we can see that socat sent the same packet we did:
 
     21:16:35.729037 IP localhost > localhost:  ip-proto-253 14
         0x0000:  4500 0022 0000 4000 40fd 3bdd 7f00 0001  E.."..@.@.;.....
