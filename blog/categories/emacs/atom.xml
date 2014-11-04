@@ -4,7 +4,7 @@
   <title><![CDATA[Category: emacs | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/emacs/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-02T07:56:02-07:00</updated>
+  <updated>2014-11-04T20:32:19+00:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Emacs Configuration Rewrite]]></title>
     <link href="http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/"/>
-    <updated>2011-11-26T00:00:00-08:00</updated>
+    <updated>2011-11-26T00:00:00+00:00</updated>
     <id>http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite</id>
     <content type="html"><![CDATA[<p>I am in the process of rebooting my GTD workflow.  Since I do most of
 my work in Emacs, I decided it was also time to refactor and improve my Emacs

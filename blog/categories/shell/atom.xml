@@ -4,7 +4,7 @@
   <title><![CDATA[Category: shell | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/shell/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-02T07:56:02-07:00</updated>
+  <updated>2014-11-04T20:32:19+00:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Simple Tools: do.times and summarize]]></title>
     <link href="http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/"/>
-    <updated>2012-03-10T00:00:00-08:00</updated>
+    <updated>2012-03-10T00:00:00+00:00</updated>
     <id>http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize</id>
     <content type="html"><![CDATA[<p>Recently, a coworker has been sharing some higher-order shell
 functions he has been writing, inspired by the first of these

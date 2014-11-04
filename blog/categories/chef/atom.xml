@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Chef | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/chef/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-02T07:56:02-07:00</updated>
+  <updated>2014-11-04T20:32:19+00:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[R ohai plugin]]></title>
     <link href="http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin/"/>
-    <updated>2012-01-01T15:44:00-08:00</updated>
+    <updated>2012-01-01T15:44:00+00:00</updated>
     <id>http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin</id>
     <content type="html"><![CDATA[<p><a href="https://github.com/opscode/ohai">Ohai</a> is a library used by Chef to collect information about nodes
 within your infrastructure.  Information is collected by a set of Ohai

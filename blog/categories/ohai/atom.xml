@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ohai | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/ohai/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-02T07:56:02-07:00</updated>
+  <updated>2014-11-04T20:32:19+00:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Passwd_min Ohai Plugin]]></title>
     <link href="http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/"/>
-    <updated>2013-04-13T13:23:00-07:00</updated>
+    <updated>2013-04-13T13:23:00+01:00</updated>
     <id>http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin</id>
     <content type="html"><![CDATA[<p><a href="https://github.com/stevendanna/ohai-plugins/blob/master/plugins/passwd_min.rb">passwd_min</a>
 is an Ohai plugin that parses /etc/passwd and /etc/group and returns

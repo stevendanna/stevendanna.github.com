@@ -2,68 +2,68 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://stevendanna.github.com/blog/2011/10/16/first-post/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://stevendanna.github.com/blog/2011/11/06/gsd-a-small-utility-to-get-stuff-done/
         </loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2011/11/26/emacs-configuration-rewrite/</loc>
-        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2011/12/26/snow-and-chef/</loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2012/01/01/r-ohai-plugin/</loc>
-        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2012/01/28/shef-debugging-tips-1/</loc>
-        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://stevendanna.github.com/blog/2012/03/10/simple-tools-do-times-and-summarize/
         </loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2013/04/13/passwd-min-ohai-plugin/</loc>
-        <lastmod>2013-06-02T19:41:24-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>
             http://stevendanna.github.com/blog/2013/04/20/cookbook-release-xinetd-0-dot-9-0/
         </loc>
-        <lastmod>2013-04-20T12:21:04-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure/</loc>
-        <lastmod>2013-07-02T07:55:56-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/blog/archives/</loc>
-        <lastmod>2013-07-02T07:55:56-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/downloads/code/public.key</loc>
-        <lastmod>2012-08-28T00:45:37-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/</loc>
-        <lastmod>2013-07-02T07:55:56-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/public-key/</loc>
-        <lastmod>2013-06-23T19:01:41-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
     <url>
         <loc>http://stevendanna.github.com/public.key</loc>
-        <lastmod>2012-08-28T00:45:37-07:00</lastmod>
+        <lastmod>2014-11-04T20:10:37+00:00</lastmod>
     </url>
 </urlset>

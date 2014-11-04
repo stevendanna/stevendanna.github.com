@@ -4,7 +4,7 @@
   <title><![CDATA[Category: C | Steven Danna's Blog]]></title>
   <link href="http://stevendanna.github.com/blog/categories/c/atom.xml" rel="self"/>
   <link href="http://stevendanna.github.com/"/>
-  <updated>2013-07-02T07:56:02-07:00</updated>
+  <updated>2014-11-04T20:32:19+00:00</updated>
   <id>http://stevendanna.github.com/</id>
   <author>
     <name><![CDATA[Steven Danna]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[A Short SOCK_RAW Adventure]]></title>
     <link href="http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure/"/>
-    <updated>2013-06-23T18:55:00-07:00</updated>
+    <updated>2013-06-23T18:55:00+01:00</updated>
     <id>http://stevendanna.github.com/blog/2013/06/23/a-short-sock-raw-adventure</id>
     <content type="html"><![CDATA[<p>Last week a colleague and I were talking about custom network
 protocols.  As I haven&rsquo;t done much networking programming in Linux, it
